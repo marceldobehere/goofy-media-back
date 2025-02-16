@@ -98,17 +98,6 @@ const authMiddleware = async (req, res, next) => {
 
     req.publicKey = publicKey;
 
-
-    // locks for each url
-    let idx = `${req.url}_${req.method}`;
-    if (!authLocks.has(idx))
-        authLocks.set(idx, new AsyncLock());
-    const lock = authLocks.get(idx);
-    // console.log(" > Got lock: ", url, lock)
-
-    // await lock.do(next);
-
-    res.lock = async (func) => {await lock.do(func)};
     await next();
 };
 
@@ -117,9 +106,15 @@ const lockMiddleware = async (req, res, next) => {
     if (!authLocks.has(idx))
         authLocks.set(idx, new AsyncLock());
     const lock = authLocks.get(idx);
+    // console.log(" > Got lock: ", url, lock)
     res.lock = async (func) => {await lock.do(func)};
     await next();
 };
 
+const authLockMiddleware = async (req, res, next) => {
+    await authMiddleware(req, res, async () => {
+        await lockMiddleware(req, res, next);
+    });
+};
 
-module.exports = {authMiddleware, lockMiddleware};
+module.exports = {authMiddleware, lockMiddleware, authLockMiddleware};
