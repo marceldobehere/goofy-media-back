@@ -7,7 +7,7 @@ const AsyncLock = require('./asyncLock');
 // check if id exists with public key
 let idList = [];
 const msExtra = 1000 * 30;
-async function checkId(publicKey, id, validUntil) {
+function checkId(publicKey, id, validUntil) {
     // console.log(" > Checking id: ", id, publicKey, validUntil)
     // console.log(" > List: ", idList)
     const now = Date.now();
@@ -54,7 +54,7 @@ async function verifyRequest(body, signature, id, validUntil, publicKey) {
         verified = false;
 
     // check id list
-    let idCheck = await checkId(publicKey, id, validUntil);
+    let idCheck = checkId(publicKey, id, validUntil);
     if (!idCheck)
         verified = false;
 
