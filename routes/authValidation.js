@@ -2,7 +2,8 @@ global.window = this
 const JSEncrypt = require('jsencrypt');
 const CryptoJS = require('crypto-js');
 const AsyncLock = require('./asyncLock');
-
+const {userHash} = require('../services/security/cryptoUtils')
+const { getRegisteredUser, getTrustedGuestUser} = require('../services/db/users');
 
 // check if id exists with public key
 let idList = [];
@@ -68,13 +69,13 @@ function parseHeaders(headers) {
     let publicKey = headers['x-goofy-public-key']
 
     if (id === undefined || signature === undefined || validUntil === undefined || publicKey === undefined)
-        return null;
+        return {id: null, signature: null, validUntil: null, publicKey: null};
 
     try {
         id = parseInt(id)
         validUntil = parseInt(validUntil)
     } catch (e) {
-        return null;
+        return {id: null, signature: null, validUntil: null, publicKey: null};
     }
 
     return {id, signature, validUntil, publicKey: decodeURIComponent(publicKey)};
@@ -85,7 +86,7 @@ const authLocks = new Map();
 const authMiddleware = async (req, res, next) => {
     let {id, signature, validUntil, publicKey} = parseHeaders(req.headers);
     if (id === null)
-        return res.status(400).send("Bad request");
+        return res.status(400).send("Unsigned request unauthorized");
 
     // console.log("> Parsed: ")
     // console.log(" > id: ", id)
@@ -94,9 +95,10 @@ const authMiddleware = async (req, res, next) => {
     // console.log(" > publicKey: ", publicKey)
     let verified = await verifyRequest(req.body, signature, id, validUntil, publicKey);
     if (!verified)
-        return res.status(401).send("Unauthorized");
+        return res.status(401).send("Signature verification failed");
 
     req.publicKey = publicKey;
+    req.userId = await userHash(publicKey);
 
     await next();
 };
@@ -117,4 +119,23 @@ const authLockMiddleware = async (req, res, next) => {
     });
 };
 
-module.exports = {authMiddleware, lockMiddleware, authLockMiddleware};
+const authRegisteredMiddleware = async (req, res, next) => {
+    await authMiddleware(req, res, async () => {
+        const publicKey = req.publicKey;
+        const userId = req.userId;
+        if (!await getRegisteredUser(userId))
+            return res.status(401).send("Non-Registered request unauthorized");
+        await next();
+    });
+}
+
+const authGuestMiddleware = async (req, res, next) => {
+    await authMiddleware(req, res, async () => {
+        const userId = req.userId;
+        if (!await getTrustedGuestUser(userId) && !await getRegisteredUser(userId))
+            return res.status(401).send("Non-Guest request unauthorized");
+        await next();
+    });
+}
+
+module.exports = {authMiddleware, lockMiddleware, authLockMiddleware, authRegisteredMiddleware, authGuestMiddleware};
