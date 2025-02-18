@@ -6,14 +6,14 @@ const indexRouter = require('./routes');
 const usersRouter = require('./routes/users');
 const guestRouter = require('./routes/guest/guestRoutes');
 
-const index = express();
+const app = express();
 
-index.use(express.json());
-index.use(express.urlencoded({ extended: false }));
-index.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
-index.use('/', indexRouter);
-index.use('/users', usersRouter);
-index.use('/guest', guestRouter);
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/guest', guestRouter);
 
-module.exports = index;
+module.exports = app;
