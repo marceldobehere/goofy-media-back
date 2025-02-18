@@ -50,12 +50,12 @@ async function getEncStorageEntryUsername(username) {
         .toArray();
 
     if (result.length === 0) {
-        console.log(`> Not found: ${username}`);
+        // console.log(`> Not found: ${username}`);
         return undefined;
     }
 
     try {
-        console.log(`> Found: `, result);
+        // console.log(`> Found: `, result);
         return JSON.parse(result[0].data);
     } catch (e) {
         return undefined;
