@@ -32,7 +32,7 @@ router.post('/code', authLockMiddleware, async (req, res) => {
     }
 
     res.lock(async () => {
-        if (await registerCodes.useCode(code)) {
+        if (await registerCodes.useCode(code, userId)) {
             if (await addRegisteredUser(userId, publicKey, {}))
                 return res.send('Register success');
             else

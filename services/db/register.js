@@ -13,7 +13,7 @@ async function addNewRegisterCode() {
     const db = await dbProm;
     const collection = db.collection('registerCodes');
     const code = getRandomCode();
-    const doc = { code, used: false, createdAt: Date.now(), usedAt: null };
+    const doc = { code, used: false, createdAt: Date.now(), usedAt: null, userId: null };
     await collection.insertOne(doc);
     return code;
 }
@@ -28,7 +28,7 @@ async function checkAvailableCode(code) {
     return result.length > 0;
 }
 
-async function useCode(code) {
+async function useCode(code, userId) {
     if (!await checkAvailableCode(code)) {
         return false;
     }
@@ -36,7 +36,7 @@ async function useCode(code) {
     const db = await dbProm;
     const collection = db.collection('registerCodes');
     const query = { code };
-    const update = { $set: { used: true, usedAt: Date.now() } };
+    const update = { $set: { used: true, usedAt: Date.now(), userId } };
     const result = await collection.updateOne(query, update);
     return result.modifiedCount > 0;
 }
