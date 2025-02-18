@@ -72,6 +72,8 @@ async function userHashInternal(str) {
 let hashStringMap2 = new Map();
 async function userHash(str)
 {
+    str = str.replace(/\n/g, ' ');
+
     let res = hashStringMap2.get(str);
     if (res)
         return res;
