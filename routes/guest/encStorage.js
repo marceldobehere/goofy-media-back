@@ -18,6 +18,10 @@ router.post('/secret-storage', lockMiddleware, authRegisteredMiddleware, async (
 
     const userId = req.userId;
     const body = req.body;
+    if (body.data === undefined) {
+        res.status(400).send('Data missing');
+        return;
+    }
 
     await res.lock(async () => {
         if (await createOrUpdateEncStorageEntry(userId, body.username, body.data))
@@ -29,6 +33,7 @@ router.post('/secret-storage', lockMiddleware, authRegisteredMiddleware, async (
 
 router.get('/secret-storage/:id', async (req, res) => {
     const username = req.params.id;
+    console.log(`> Get secret storage for username: ${username}`);
     if (username === undefined || username === '' || typeof username !== 'string') {
         res.status(400).send('Username missing');
         return;

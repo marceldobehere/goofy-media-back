@@ -50,10 +50,12 @@ async function getEncStorageEntryUsername(username) {
         .toArray();
 
     if (result.length === 0) {
+        console.log(`> Not found: ${username}`);
         return undefined;
     }
 
     try {
+        console.log(`> Found: `, result);
         return JSON.parse(result[0].data);
     } catch (e) {
         return undefined;
@@ -61,7 +63,7 @@ async function getEncStorageEntryUsername(username) {
 }
 
 async function checkEncStorageEntryAvailable(username) {
-    return await getEncStorageEntryUsername(username) !== undefined;
+    return await getEncStorageEntryUsername(username) === undefined;
 }
 
 async function removeEncStorageEntry(userId) {
