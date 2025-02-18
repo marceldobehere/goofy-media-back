@@ -8,16 +8,18 @@ async function addRegisteredUser(userId, publicKey, data) {
     const db = await dbProm;
     const collection = db.collection('registeredUsers');
     const doc = { userId, publicKey, data };
-    const count = await collection.insertOne(doc);
-    return count > 0;
+    const res = await collection.insertOne(doc);
+    // console.log("> Inserted: ", res);
+    return res != undefined && res.acknowledged;
 }
 
 async function removeRegisteredUser(userId) {
     const db = await dbProm;
     const collection = db.collection('registeredUsers');
     const query = { userId };
-    const count = await collection.deleteOne(query);
-    return count > 0;
+    const res = await collection.deleteOne(query);
+    // console.log("> Deleted: ", res);
+    return res != undefined && res.acknowledged;
 }
 
 async function getRegisteredUser(userId) {
@@ -28,6 +30,7 @@ async function getRegisteredUser(userId) {
         .find(query)
         .toArray();
 
+    // console.log("> Found: ", result);
     if (result.length === 0) {
         return undefined;
     }
@@ -40,9 +43,9 @@ async function updateRegisteredUser(userId, data) {
     const collection = db.collection('registeredUsers');
     const query = {userId};
     const update = {$set: {data}};
-    const count = await collection.updateOne(query, update);
-
-    return count > 0;
+    const res = await collection.updateOne(query, update);
+    // console.log("> Updated: ", res);
+    return res != undefined && res.acknowledged;
 }
 
 async function addTrustedGuestUserIfNotExists(userId, publicKey) {
