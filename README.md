@@ -7,9 +7,18 @@ Currently very WIP.
 
 
 
+### Requirements 
+
+Requires the nodejs packages in the `package.json` file.
+
 Requires a `.env` file with the following variables:
 ```
 DB_USER="..."
 DB_PASS="..."
 DB_URL="mongodb+srv://..."
 ```
+
+
+### How to run
+* `npm install`
+* `npm start`
