@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node api/index.js",
-    "build": "echo 'Doing Build' && cd node_modules/mongodb && npm i && echo 'Done lol'"
+    "goofy": "echo 'Doing Build' && npm i && cd node_modules/mongodb && npm i && echo 'Done lol'"
   },
   "dependencies": {
     "bson": "^6.10.2",
