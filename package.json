@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node api/index.js",
-    "goofy": "echo 'Doing Build' && npm i && cd node_modules/mongodb && npm i && cd .. && mkdir public && echo 'Done lol'"
+    "goofy": "npm install node-gyp -g && npm cache clean && rm -rf node_modules && npm install",
+    "goofy2": "echo 'Doing Build' && npm i && cd node_modules/mongodb && npm i && cd .. && mkdir public && echo 'Done lol'"
   },
   "dependencies": {
     "bson": "^6.10.2",
