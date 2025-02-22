@@ -22,3 +22,19 @@ DB_URL="mongodb+srv://..."
 ### How to run
 * `npm install`
 * `npm start`
+
+
+## Deployment
+
+## How to deploy on a local Server
+Docker
+
+
+## How to deploy on Deno
+* [Create](https://www.mongodb.com) a MongoDB database
+* [Install Deno](https://docs.deno.com/runtime/getting_started/installation/)
+* `deno install -gArf jsr:@deno/deployctl`
+* Run the following command to deploy the project:
+  * Change the project name in `--project=[PROJECT-NAME]` to the name of your project
+  * `deployctl deploy --project=[PROJECT-NAME] --include=**/*.js --include=**/*.json --entrypoint api/index.js`
+* Go to the project and add the `DB_URL` environment variable to the project

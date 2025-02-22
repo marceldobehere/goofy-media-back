@@ -2,6 +2,7 @@
   "name": "goofy-media-back",
   "version": "0.0.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "start": "node api/index.js",
     "start-https": "node api/index.js SSL",
