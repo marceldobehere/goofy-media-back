@@ -12,7 +12,7 @@ function checkId(publicKey, id, validUntil) {
     // console.log(" > Checking id: ", id, publicKey, validUntil)
     // console.log(" > List: ", idList)
     const now = Date.now();
-    if (validUntil < now || validUntil > now + msExtra)
+    if (validUntil < now + 5000 || validUntil > now + msExtra)
         return false;
 
     // clear list of old entries
@@ -47,7 +47,7 @@ async function verifyRequest(body, signature, id, validUntil, publicKey) {
     // check if id already exists
 
     // check if validUntil is in the future
-    if (validUntil < Date.now())
+    if (validUntil < Date.now() + 5000)
         verified = false;
 
     // but check if its not too much in the future

@@ -86,7 +86,7 @@ async function verifyPost(postObj) {
     }
 
     // check if post is not in the future
-    if (post.createdAt > Date.now()) {
+    if (post.createdAt > Date.now() + 10000) {
         return "FUTURE DATE";
     }
 
