@@ -32,8 +32,9 @@ router.post('/code', authLockMiddleware, async (req, res) => {
     }
 
     res.lock(async () => {
-        if (await registerCodes.useCode(code, userId)) {
-            if (await addRegisteredUser(userId, publicKey, {}))
+        const usedCode = await registerCodes.useCode(code, userId);
+        if (usedCode) {
+            if (await addRegisteredUser(userId, publicKey, {admin: !!usedCode.admin}))
                 return res.send('Register success');
             else
                 return res.status(400).send('Failed to register user');
@@ -57,8 +58,10 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
 
 
 (async () => {
-    const code = await registerCodes.addNewRegisterCode();
-    console.log(`> Added new code: ${code}`);
+    if (!await registerCodes.checkIfAdminCodeWasCreated()) {
+        const code = await registerCodes.addNewRegisterCode(true);
+        console.log(`> Added new admin code: ${code}`);
+    }
 })();
 
 

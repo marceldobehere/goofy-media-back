@@ -9,37 +9,56 @@ const getRandomCode = () => {
     return code;
 }
 
-async function addNewRegisterCode() {
+async function addNewRegisterCode(admin) {
     const db = await dbProm;
     const collection = db.collection('registerCodes');
     const code = getRandomCode();
-    const doc = { code, used: false, createdAt: Date.now(), usedAt: null, userId: null };
+    const doc = { code, used: false, createdAt: Date.now(), usedAt: null, userId: null, admin: !!admin };
     await collection.insertOne(doc);
     return code;
 }
 
-async function checkAvailableCode(code) {
+async function getAvailableCode(code) {
     const db = await dbProm;
     const collection = db.collection('registerCodes');
     const query = { code, used: false };
     const result = await collection
         .find(query)
         .toArray();
-    return result.length > 0;
+    return result[0];
+}
+
+async function checkAvailableCode(code) {
+    const codeDoc = await getAvailableCode(code);
+    return !!codeDoc;
 }
 
 async function useCode(code, userId) {
-    if (!await checkAvailableCode(code)) {
-        return false;
-    }
+    const foundCode = await getAvailableCode(code);
+    if (foundCode == undefined)
+        return null;
+    console.log(`> Using code: ${code}: `, foundCode);
 
     const db = await dbProm;
     const collection = db.collection('registerCodes');
     const query = { code };
     const update = { $set: { used: true, usedAt: Date.now(), userId } };
     const result = await collection.updateOne(query, update);
-    return result.modifiedCount > 0;
+    if (result.modifiedCount < 1) {
+        return null;
+    }
+
+    return foundCode;
 }
 
+async function checkIfAdminCodeWasCreated() {
+    const db = await dbProm;
+    const collection = db.collection('registerCodes');
+    const query = { admin: true };
+    const result = await collection
+        .find(query)
+        .toArray();
+    return result.length > 0;
+}
 
-module.exports = { addNewRegisterCode, checkAvailableCode, useCode };
+module.exports = { addNewRegisterCode, checkAvailableCode, useCode, checkIfAdminCodeWasCreated };
