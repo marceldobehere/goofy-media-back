@@ -61,4 +61,21 @@ async function checkIfAdminCodeWasCreated() {
     return result.length > 0;
 }
 
-module.exports = { addNewRegisterCode, checkAvailableCode, useCode, checkIfAdminCodeWasCreated };
+async function getAllCodes() {
+    const db = await dbProm;
+    const collection = db.collection('registerCodes');
+    const result = await collection
+        .find({})
+        .toArray();
+    return result;
+}
+
+async function deleteUnusedCode(code) {
+    const db = await dbProm;
+    const collection = db.collection('registerCodes');
+    const query = { code, used: false };
+    const result = await collection.deleteOne(query);
+    return result.deletedCount > 0;
+}
+
+module.exports = { addNewRegisterCode, checkAvailableCode, useCode, checkIfAdminCodeWasCreated, getAllCodes, deleteUnusedCode };
