@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node api/index.js",
+    "start-https": "node api/index.js SSL",
     "dev": "nodemon api/index.js",
     "goofy": "npm install node-gyp -g && npm cache clean --force && rm -rf node_modules && npm install",
     "goofy2": "echo 'Doing Build' && npm i && cd node_modules/mongodb && npm i && cd .. && mkdir public && echo 'Done lol'"
