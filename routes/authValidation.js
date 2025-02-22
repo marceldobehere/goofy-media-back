@@ -88,11 +88,15 @@ const authMiddleware = async (req, res, next) => {
     if (id === null)
         return res.status(400).send("Unsigned request unauthorized");
 
+    if (req.body == undefined)
+        req.body = {};
+
     // console.log("> Parsed: ")
     // console.log(" > id: ", id)
     // console.log(" > signature: ", signature)
     // console.log(" > validUntil: ", validUntil)
     // console.log(" > publicKey: ", publicKey)
+    // console.log(" > Body: ", req.body)
     let verified = await verifyRequest(req.body, signature, id, validUntil, publicKey);
     if (!verified)
         return res.status(401).send("Signature verification failed");
@@ -123,8 +127,12 @@ const authRegisteredMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         const publicKey = req.publicKey;
         const userId = req.userId;
-        if (!await getRegisteredUser(userId))
+
+        const user = await getRegisteredUser(userId);
+        if (user === undefined)
             return res.status(401).send("Non-Registered request unauthorized");
+
+        req.user = user;
         await next();
     });
 }
@@ -138,4 +146,25 @@ const authGuestMiddleware = async (req, res, next) => {
     });
 }
 
-module.exports = {authMiddleware, lockMiddleware, authLockMiddleware, authRegisteredMiddleware, authGuestMiddleware};
+const authAdminMiddleware = async (req, res, next) => {
+    await authMiddleware(req, res, async () => {
+        const publicKey = req.publicKey;
+        const userId = req.userId;
+
+        const user = await getRegisteredUser(userId);
+        if (user === undefined)
+            return res.status(401).send("Non-Registered request unauthorized");
+
+        const data = user.data;
+        if (data === undefined)
+            return res.status(401).send("Non-Registered request unauthorized");
+
+        if (!data.admin)
+            return res.status(401).send("Non-Admin request unauthorized");
+
+        req.user = user;
+        await next();
+    });
+}
+
+module.exports = {authMiddleware, lockMiddleware, authLockMiddleware, authRegisteredMiddleware, authGuestMiddleware, authAdminMiddleware};

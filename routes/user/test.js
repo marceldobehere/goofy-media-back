@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {authMiddleware, lockMiddleware, authLockMiddleware} = require('./authValidation')
+const {authMiddleware, lockMiddleware, authLockMiddleware} = require('../authValidation')
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
