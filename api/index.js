@@ -3,17 +3,19 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
+const DATA_PATH = __dirname + "/../data";
+
 let SSL = false;
 if (process.argv.length > 2 &&
     process.argv[2].toLowerCase() === 'ssl')
     SSL = true;
 
-if (!fs.existsSync(__dirname + "/data"))
+if (!fs.existsSync(DATA_PATH))
 {
-    fs.mkdirSync(__dirname + "/data");
+    fs.mkdirSync(DATA_PATH);
 }
 
-if (SSL && !fs.existsSync(__dirname + "/data/ssl"))
+if (SSL && !fs.existsSync(DATA_PATH + "/ssl"))
 {
     console.log("SSL FOLDER DOESNT EXIST");
     console.log();
@@ -34,8 +36,8 @@ if (!SSL)
 else
     server = https.createServer(
         {
-            key: fs.readFileSync(__dirname + "/data/ssl/key.pem"),
-            cert: fs.readFileSync(__dirname + "/data/ssl/cert.pem"),
+            key: fs.readFileSync(DATA_PATH + "/ssl/key.pem"),
+            cert: fs.readFileSync(DATA_PATH + "/ssl/cert.pem"),
         },
         app);
 
