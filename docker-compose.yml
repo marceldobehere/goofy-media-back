@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  goofy_chat_v1:
+  goofy_media_v1:
     container_name: goofy_media_v1
     build: .
     volumes:
