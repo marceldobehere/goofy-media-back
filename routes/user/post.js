@@ -51,7 +51,7 @@ router.get('/tag/:tag', async (req, res) => {
     res.send(sanitized);
 });
 
-const NEWS_USER_IDS = ["wield_deaf_yeeds593"];
+const NEWS_USER_IDS = ["mechs_relos868"];
 router.get('/news', async (req, res) => {
     const posts = await getPostsByUsers(NEWS_USER_IDS);
     if (posts == undefined)
