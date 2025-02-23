@@ -1,6 +1,8 @@
 # Goofy Media Backend
 This is the backend for Goofy Media.
 
+Frontend: https://github.com/marceldobehere/goofy-media-front
+
 Currently very WIP.
 
 (More details will follow with time)
