@@ -40,7 +40,7 @@ function extractStartAndLimitFromHeaders(headers) {
     if (limit < 0)
         limit = 0;
 
-    console.log(`> Start: ${start}, Limit: ${limit}`);
+    // console.log(`> Start: ${start}, Limit: ${limit}`);
     return {start, limit};
 }
 
