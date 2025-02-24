@@ -1,5 +1,6 @@
 const {decompress} = require("./strcomp")
 const CryptoJS = require('crypto-js');
+const crypto = require('crypto')
 
 // Sources
 // - https://gist.githubusercontent.com/raspberrypisig/cc18b0f4fbc0c79ffd667d06adc0a190
@@ -33,10 +34,29 @@ async function hashString(str)
     return hash;
 }
 
+
+// old pbkdf2 using CryptoJS (slow)
+async function oldPbkdf2(str, salt, keySize, iterations) {
+    let hash = CryptoJS.PBKDF2(str, salt, {keySize: keySize,iterations: iterations});
+    return hash.toString(CryptoJS.enc.Base64);
+}
+
+// using nodes built in pbkdf2
+async function improvedPbkdf2(str, salt, keySize, iterations) {
+    return new Promise((resolve, reject) => {
+        crypto.pbkdf2(str, salt, iterations, keySize*4, 'sha256', (err, derivedKey) => {
+            if (err) reject(err);
+            resolve(derivedKey.toString('base64'));
+        });
+    });
+}
+
 async function userHashInternal(str) {
     let words = await getWordList();
 
-    let hash = CryptoJS.PBKDF2(str, "GoofyUserHash123", {keySize: 16,iterations: 50000}).toString(CryptoJS.enc.Base64);
+    //let hash = CryptoJS.PBKDF2(str, "GoofyUserHash123", {keySize: 16,iterations: 50000}).toString(CryptoJS.enc.Base64);
+    // let hash = await improvedPbkdf2(str, "GoofyUserHash123", 16, 50000);
+    let hash = await improvedPbkdf2(str, "GoofyUserHash123", 8, 1000000);
     let c = CryptoJS.PBKDF2(hash, "GoofyUserLenHash123", {keySize: 16,iterations: 1234}).words[0];
     let n = CryptoJS.PBKDF2(hash, "GoofyUserValHash123", {keySize: 16,iterations: 1234}).words[0];
     if (c < 0) c *= -1;
@@ -104,3 +124,38 @@ async function getHashFromObj(obj)
 }
 
 module.exports = {hashString, userHash, getWordList, getHashFromObj, getRandomIntInclusive};
+
+
+
+// async function testPbkdf2()
+// {
+//     console.log("> Testing PBKDF2");
+//     let str = "test";
+//     let salt = "salt";
+//     let keySize = 16;
+//     let iterations = 50000;
+//
+//     let oldHash;
+//     let newHash;
+//
+//     console.log("> Running 100 iterations of old PBKDF2");
+//     let time1 = Date.now();
+//     for (let i = 0; i < 100; i++)
+//         oldHash = await oldPbkdf2(str, salt, keySize, iterations);
+//     let time2 = Date.now();
+//
+//     console.log("> Running 100 iterations of new PBKDF2");
+//     let time3 = Date.now();
+//     for (let i = 0; i < 100; i++)
+//         newHash = await improvedPbkdf2(str, salt, keySize, iterations);
+//     let time4 = Date.now();
+//
+//     console.log("Old hash:", oldHash);
+//     console.log("New hash:", newHash);
+//     if (oldHash !== newHash)
+//         console.log("> Hashes do not match!!!");
+//
+//     console.log("Old time:", time2 - time1);
+//     console.log("New time:", time4 - time3);
+// }
+// setTimeout(testPbkdf2, 500)

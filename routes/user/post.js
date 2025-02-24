@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const {getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers} = require("../../services/db/posts");
+const {getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
+    getPostsByUsersAndTags
+} = require("../../services/db/posts");
 const {authRegisteredMiddleware} = require("../authValidation");
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
@@ -52,8 +54,9 @@ router.get('/tag/:tag', async (req, res) => {
 });
 
 const NEWS_USER_IDS = ["mechs_relos868"];
+const NEWS_TAGS = ["news"];
 router.get('/news', async (req, res) => {
-    const posts = await getPostsByUsers(NEWS_USER_IDS);
+    const posts = await getPostsByUsersAndTags(NEWS_USER_IDS, NEWS_TAGS);
     if (posts == undefined)
         return res.status(500).send('Failed to get posts');
 

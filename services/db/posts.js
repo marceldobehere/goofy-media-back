@@ -184,7 +184,22 @@ async function getPostsByUsers(userIds, limit, start) {
 async function getPostsByTag(tag, limit, start) {
     const db = await dbProm;
     const collection = db.collection('posts');
-    const res = await getCollection(collection, {tags: tag}, limit, start);
+    console.log(`Getting posts by tag: "${tag}"`);
+    const res = await getCollection(collection, {"post.tags": tag}, limit, start);
+    return res;
+}
+
+async function getPostsByTags(tags, limit, start) {
+    const db = await dbProm;
+    const collection = db.collection('posts');
+    const res = await getCollection(collection, {"post.tags": {$in: tags}}, limit, start);
+    return res;
+}
+
+async function getPostsByUsersAndTags(userIds, tags, limit, start) {
+    const db = await dbProm;
+    const collection = db.collection('posts');
+    const res = await getCollection(collection, {userId: {$in: userIds}, "post.tags": {$in: tags}}, limit, start);
     return res;
 }
 
@@ -196,5 +211,7 @@ module.exports = {
     getPostsByTag,
     sanitizePostObj,
     sanitizePostObjArr,
-    getPostsByUsers
+    getPostsByUsers,
+    getPostsByTags,
+    getPostsByUsersAndTags
 }
