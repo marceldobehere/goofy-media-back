@@ -55,7 +55,8 @@ async function userHashInternal(str) {
     let words = await getWordList();
 
     //let hash = CryptoJS.PBKDF2(str, "GoofyUserHash123", {keySize: 16,iterations: 50000}).toString(CryptoJS.enc.Base64);
-    let hash = await improvedPbkdf2(str, "GoofyUserHash123", 16, 50000);
+    // let hash = await improvedPbkdf2(str, "GoofyUserHash123", 16, 50000);
+    let hash = await improvedPbkdf2(str, "GoofyUserHash123", 8, 1000000);
     let c = CryptoJS.PBKDF2(hash, "GoofyUserLenHash123", {keySize: 16,iterations: 1234}).words[0];
     let n = CryptoJS.PBKDF2(hash, "GoofyUserValHash123", {keySize: 16,iterations: 1234}).words[0];
     if (c < 0) c *= -1;
