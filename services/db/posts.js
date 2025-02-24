@@ -1,6 +1,7 @@
 const dbProm = require('./db_internal');
 const cryptoUtils = require('../security/cryptoUtils');
 const rsa = require('../security/rsa');
+const users = require('./users');
 
 /*
 Post Structure:
@@ -15,7 +16,7 @@ const postBody = {
 const mainBody = {
     post: postBody,
     signature: signature,
-    publicKey: GlobalStuff.publicKey,
+    // publicKey: GlobalStuff.publicKey,
     userId: GlobalStuff.userId
 };
 */
@@ -38,7 +39,7 @@ async function sanitizePostObj(postObj) {
         return {
             post: await sanitizePost(postObj.post),
             signature: postObj.signature,
-            publicKey: postObj.publicKey,
+            // publicKey: postObj.publicKey, -> Not required as it can be "derived" from userId
             userId: postObj.userId
         };
     } catch (e) {
@@ -105,17 +106,20 @@ async function verifyPost(postObj) {
         return "SIGNATURE MISSING";
     }
 
-    // Verify Public Key
-    const publicKey = postObj.publicKey;
-    if (publicKey === undefined || typeof publicKey !== 'string') {
-        return "PUBLIC KEY MISSING";
-    }
+    // // Verify Public Key
+    // const publicKey = postObj.publicKey;
+    // if (publicKey === undefined || typeof publicKey !== 'string') {
+    //     return "PUBLIC KEY MISSING";
+    // }
 
     // Verify User ID
     const userId = postObj.userId;
     if (userId === undefined || typeof userId !== 'string') {
         return "USER ID MISSING";
     }
+
+    // Get Public Key
+    const publicKey = await users.getPubKeyFromUserId(userId);
 
     // Validate User ID
     const actualUserId = await cryptoUtils.userHash(publicKey);

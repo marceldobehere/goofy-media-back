@@ -61,7 +61,18 @@ async function getTrustedGuestUser(userId) {
 }
 
 
+async function getPubKeyFromUserId(userId) {
+    let user = await getRegisteredUser(userId);
+    if (user === undefined)
+        user = await getTrustedGuestUser(userId);
+    if (user === undefined)
+        return undefined;
+
+    return user.publicKey;
+}
+
+
 module.exports = {
     addRegisteredUser, removeRegisteredUser, getRegisteredUser, updateRegisteredUser,
-    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser
+    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId
 };
