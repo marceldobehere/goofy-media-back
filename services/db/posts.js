@@ -148,7 +148,7 @@ async function addPost(post) {
     return res != undefined && res.acknowledged;
 }
 
-const DEFAULT_LIMIT = 100;
+const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
 
 async function getCollection(collection, filter, limit, start) {
