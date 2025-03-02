@@ -32,10 +32,15 @@ router.post('/code', authLockMiddleware, async (req, res) => {
     }
 
     res.lock(async () => {
-        const usedCode = await registerCodes.useCode(code, userId);
+        const usedCode = await registerCodes.useCode(code);
         if (usedCode) {
-            if (await addRegisteredUser(userId, publicKey, {admin: !!usedCode.admin}))
-                return res.send('Register success');
+            if (await addRegisteredUser(userId, publicKey, {admin: !!usedCode.admin})) {
+                const usedCode2 = await registerCodes.useCode(code, userId);
+                if (usedCode2)
+                    return res.send('Register success');
+                else
+                    res.status(500).send('Failed to use code');
+            }
             else
                 return res.status(400).send('Failed to register user');
         } else {

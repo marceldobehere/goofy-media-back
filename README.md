@@ -15,9 +15,7 @@ Requires the nodejs packages in the `package.json` file.
 
 Requires a `.env` file with the following variables:
 ```
-DB_USER="..."
-DB_PASS="..."
-DB_URL="mongodb+srv://..."
+TURSO_DATABASE_URL=file:data.db
 ```
 
 
@@ -33,6 +31,9 @@ Docker
 
 
 ## How to deploy on Deno
+
+TODO: FIX BC TURSO 
+
 * [Create](https://www.mongodb.com) a MongoDB database
 * [Install Deno](https://docs.deno.com/runtime/getting_started/installation/)
 * `deno install -gArf jsr:@deno/deployctl`
