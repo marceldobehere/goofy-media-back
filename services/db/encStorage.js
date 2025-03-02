@@ -1,4 +1,6 @@
-const dbProm = require('./db_internal');
+const db = require('./drizzle/drizzle');
+const { EncryptedStorage} = require('./drizzle/schema');
+const {and, count, eq} = require("drizzle-orm");
 
 async function createOrUpdateEncStorageEntry(userId, username, data) {
     if (userId === undefined || username === undefined || data === undefined)
@@ -14,50 +16,47 @@ async function createOrUpdateEncStorageEntry(userId, username, data) {
     if (!await checkEncStorageEntryAvailable(username))
         return false;
 
-    const db = await dbProm;
-    const collection = db.collection('encStorage');
-    const query = { userId };
-    const update = { $set: { userId, username, data: JSON.stringify(data) } };
-    const res = await collection.updateOne(query, update, { upsert: true });
-    return res != undefined && res.acknowledged;
+    try {
+        await db.insert(EncryptedStorage)
+            .values({userId, username, data: dataStr})
+            .onConflictDoUpdate({target: EncryptedStorage.userId, set: {username, data: dataStr}});
+        return true;
+    } catch (e) {
+        console.error(`Failed to create or update entry: ${e.message}`);
+        return false;
+    }
 }
 
 async function getEncStorageEntryUserId(userId) {
-    const db = await dbProm;
-    const collection = db.collection('encStorage');
-    const query = { userId };
-    const result = await collection
-        .find(query)
-        .toArray();
-
-    if (result.length === 0) {
-        return undefined;
-    }
-
     try {
-        return JSON.parse(result[0].data);
+        const result = await db.select()
+            .from(EncryptedStorage)
+            .where(eq(EncryptedStorage.userId, userId))
+            .get();
+
+        if (result == undefined)
+            return undefined;
+
+        return JSON.parse(result.data);
     } catch (e) {
+        console.error(`Failed to get entry: ${e.message}`);
         return undefined;
     }
 }
 
 async function getEncStorageEntryUsername(username) {
-    const db = await dbProm;
-    const collection = db.collection('encStorage');
-    const query = { username };
-    const result = await collection
-        .find(query)
-        .toArray();
-
-    if (result.length === 0) {
-        // console.log(`> Not found: ${username}`);
-        return undefined;
-    }
-
     try {
-        // console.log(`> Found: `, result);
-        return JSON.parse(result[0].data);
+        const result = await db.select()
+            .from(EncryptedStorage)
+            .where(eq(EncryptedStorage.username, username))
+            .get();
+
+        if (result == undefined)
+            return undefined;
+
+        return JSON.parse(result.data);
     } catch (e) {
+        console.error(`Failed to get entry: ${e.message}`);
         return undefined;
     }
 }
@@ -67,14 +66,14 @@ async function checkEncStorageEntryAvailable(username) {
 }
 
 async function removeEncStorageEntry(userId) {
-    const db = await dbProm;
-    const collection = db.collection('encStorage');
-    const query = { userId };
-    // delete all entries with this userId
-    const res = await collection.deleteMany(query);
-    if (res == undefined || !res.acknowledged)
+    try {
+        const res = await db.delete(EncryptedStorage)
+            .where(eq(EncryptedStorage.userId, userId));
+        return res.rowsAffected > 0;
+    } catch (e) {
+        console.error(`Failed to remove entry: ${e.message}`);
         return false;
-    return res.deletedCount > 0;
+    }
 }
 
 
