@@ -77,6 +77,36 @@ async function removeEncStorageEntry(userId) {
     return res.deletedCount > 0;
 }
 
+async function getAllEncStorageEntries() {
+    const db = await dbProm;
+    const collection = db.collection('encStorage');
+    const result = await collection
+        .find({})
+        .toArray();
+
+    return result.map(x => {
+        return {
+            userId: x.userId,
+            username: x.username,
+            data: JSON.parse(x.data)
+        };
+    });
+}
+
+async function importAllEncStorageEntries(data) {
+    // clear all entries from the table
+    const db = await dbProm;
+    const collection = db.collection('encStorage');
+    await collection.deleteMany({});
+
+    // insert all entries
+    for (let entry of data) {
+        await createOrUpdateEncStorageEntry(entry.userId, entry.username, entry.data);
+    }
+    return true;
+}
 
 
-module.exports = { createOrUpdateEncStorageEntry, getEncStorageEntryUserId, getEncStorageEntryUsername, removeEncStorageEntry, checkEncStorageEntryAvailable };
+
+module.exports = { createOrUpdateEncStorageEntry, getEncStorageEntryUserId, getEncStorageEntryUsername, removeEncStorageEntry, checkEncStorageEntryAvailable,
+    getAllEncStorageEntries, importAllEncStorageEntries };

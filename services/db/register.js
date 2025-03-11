@@ -78,4 +78,45 @@ async function deleteUnusedCode(code) {
     return result.deletedCount > 0;
 }
 
-module.exports = { addNewRegisterCode, checkAvailableCode, useCode, checkIfAdminCodeWasCreated, getAllCodes, deleteUnusedCode };
+async function getAllCodeEntries() {
+    const db = await dbProm;
+    const collection = db.collection('registerCodes');
+    const result = await collection
+        .find({})
+        .toArray();
+
+    return result.map(x => {
+        return {
+            code: x.code,
+            admin: x.admin,
+            used: x.used,
+            usedBy: x.userId,
+            createdAt: x.createdAt,
+            usedAt: x.usedAt
+        };
+    });
+}
+
+async function importAllRegisterCodes(codes) {
+    // clear all entries from the table
+    const db = await dbProm;
+    const collection = db.collection('registerCodes');
+    await collection.deleteMany({});
+
+    // insert all entries
+    const insertCodes = codes.map(x => {
+        return {
+            code: x.code,
+            admin: x.admin,
+            used: x.used,
+            userId: x.usedBy,
+            createdAt: x.createdAt,
+            usedAt: x.usedAt
+        };
+    });
+
+    await collection.insertMany(insertCodes);
+    return true;
+}
+
+module.exports = { addNewRegisterCode, checkAvailableCode, useCode, checkIfAdminCodeWasCreated, getAllCodes, deleteUnusedCode, getAllCodeEntries, importAllRegisterCodes };

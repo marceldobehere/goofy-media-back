@@ -2,15 +2,48 @@ const express = require('express');
 const router = express.Router();
 const {authAdminMiddleware} = require("../authValidation");
 const registerCodes = require('../../services/db/register');
+const {getAllEncStorageEntries, importAllEncStorageEntries} = require("../../services/db/encStorage");
+const {getAllCodeEntries, importAllRegisterCodes} = require("../../services/db/register");
+const {getAllRegisteredUserEntries, importAllRegisteredUsers} = require("../../services/db/users");
+const {getAllPostEntries, importAllPosts} = require("../../services/db/posts");
 
 
 async function getAllExportData() {
 
-    return {};
+    const encStorage = await getAllEncStorageEntries();
+    const registerCodes = await getAllCodeEntries();
+    const registeredUsers = await getAllRegisteredUserEntries();
+    const posts = await getAllPostEntries();
+
+    const res = {
+        encStorage,
+        registerCodes,
+        registeredUsers,
+        posts
+    };
+
+    console.log("Exporting data: ", res);
+    return res;
 }
 
 async function importAllData(data) {
     console.log("Importing data: ", data);
+
+    const encStorage = data.encStorage;
+    if (encStorage)
+        await importAllEncStorageEntries(encStorage);
+
+    const registerCodes = data.registerCodes;
+    if (registerCodes)
+        await importAllRegisterCodes(registerCodes);
+
+    const registeredUsers = data.registeredUsers;
+    if (registeredUsers)
+        await importAllRegisteredUsers(registeredUsers);
+
+    const posts = data.posts;
+    if (posts)
+        await importAllPosts(posts);
 
     return true;
 }

@@ -203,6 +203,39 @@ async function getPostsByUsersAndTags(userIds, tags, limit, start) {
     return res;
 }
 
+async function getAllPostEntries() {
+    const db = await dbProm;
+    const collection = db.collection('posts');
+    const result = await collection
+        .find({})
+        .toArray();
+    return result.map(x => {
+        return {
+            post: x.post,
+            signature: x.signature,
+            userId: x.userId
+        };
+    });
+}
+
+async function importAllPosts(posts) {
+    // clear all entries from the table
+    const db = await dbProm;
+    const collection = db.collection('posts');
+    await collection.deleteMany({});
+    // insert all entries
+    const insertPosts = posts.map(x => {
+        return {
+            post: x.post,
+            signature: x.signature,
+            userId: x.userId
+        };
+    });
+
+    await collection.insertMany(insertPosts);
+    return true;
+}
+
 module.exports = {
     verifyPost,
     addPost,
@@ -213,5 +246,7 @@ module.exports = {
     sanitizePostObjArr,
     getPostsByUsers,
     getPostsByTags,
-    getPostsByUsersAndTags
+    getPostsByUsersAndTags,
+    getAllPostEntries,
+    importAllPosts
 }

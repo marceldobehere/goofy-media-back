@@ -71,8 +71,37 @@ async function getPubKeyFromUserId(userId) {
     return user.publicKey;
 }
 
+async function getAllRegisteredUserEntries() {
+    const db = await dbProm;
+    const collection = db.collection('registeredUsers');
+    const result = await collection
+        .find({})
+        .toArray();
+    return result.map(x => {
+        return {
+            userId: x.userId,
+            publicKey: x.publicKey,
+            data: x.data
+        };
+    });
+}
+
+
+async function importAllRegisteredUsers(data) {
+    // clear all entries from the table
+    const db = await dbProm;
+    const collection = db.collection('registeredUsers');
+    await collection.deleteMany({});
+    // insert all entries
+    for (let entry of data) {
+        await addRegisteredUser(entry.userId, entry.publicKey, entry.data);
+    }
+    return true;
+}
+
 
 module.exports = {
     addRegisteredUser, removeRegisteredUser, getRegisteredUser, updateRegisteredUser,
-    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId
+    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId,
+    getAllRegisteredUserEntries, importAllRegisteredUsers
 };
