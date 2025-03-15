@@ -15,7 +15,7 @@ Requires the nodejs packages in the `package.json` file.
 
 Requires a `.env` file with the following variables:
 ```
-TURSO_DATABASE_URL=file:data.db
+TURSO_DATABASE_URL=file:./data/main.db
 ```
 
 

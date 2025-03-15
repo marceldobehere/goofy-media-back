@@ -4,6 +4,7 @@ const {lockMiddleware} = require('./../authValidation')
 const registerCodes = require('../../services/db/register')
 const {authRegisteredMiddleware, authLockMiddleware} = require("../authValidation");
 const { addRegisteredUser } = require('../../services/db/users');
+const drizzler = require("../../services/db/drizzle/drizzle");
 
 router.get('/code/:id', async (req, res) => {
     const id = req.params.id;
@@ -63,6 +64,8 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
 
 
 (async () => {
+    await drizzler.promise;
+
     if (!await registerCodes.checkIfAdminCodeWasCreated()) {
         const code = await registerCodes.addNewRegisterCode(true);
         console.log(`> Added new admin code: ${code}`);
