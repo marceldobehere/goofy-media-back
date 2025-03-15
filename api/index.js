@@ -29,19 +29,24 @@ if (SSL && !fs.existsSync(DATA_PATH + "/ssl"))
 }
 
 var app = require('../app');
+const drizzler = require("../services/db/drizzle/drizzle");
 
-let server;
-if (!SSL)
-    server = http.createServer(app);
-else
-    server = https.createServer(
-        {
-            key: fs.readFileSync(DATA_PATH + "/ssl/key.pem"),
-            cert: fs.readFileSync(DATA_PATH + "/ssl/cert.pem"),
-        },
-        app);
+(async () => {
+    let server;
+    if (!SSL)
+        server = http.createServer(app);
+    else
+        server = https.createServer(
+            {
+                key: fs.readFileSync(DATA_PATH + "/ssl/key.pem"),
+                cert: fs.readFileSync(DATA_PATH + "/ssl/cert.pem"),
+            },
+            app);
 
-let port = SSL ? 443 : 3000;
-server.listen(port, () => {
-    console.log(`listening on *:${port}`);
-});
+    await drizzler.promise;
+
+    let port = SSL ? 443 : 3000;
+    server.listen(port, () => {
+        console.log(`listening on *:${port}`);
+    });
+})().then();

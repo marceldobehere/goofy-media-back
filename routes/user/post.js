@@ -82,7 +82,7 @@ router.get('/tag/:tag', async (req, res) => {
     res.send(sanitized);
 });
 
-const NEWS_USER_IDS = ["mechs_relos868", "holts_plesh_boaty798"];
+const NEWS_USER_IDS = ["mechs_relos868", "holts_plesh_boaty798", "sorer_bull_donko201"];
 const NEWS_TAGS = ["news"];
 router.get('/news', async (req, res) => {
     const {start, limit} = extractStartAndLimitFromHeaders(req.headers);

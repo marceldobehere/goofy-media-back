@@ -4,6 +4,7 @@ const {lockMiddleware} = require('./../authValidation')
 const registerCodes = require('../../services/db/register')
 const {authRegisteredMiddleware, authLockMiddleware} = require("../authValidation");
 const { addRegisteredUser } = require('../../services/db/users');
+const drizzler = require("../../services/db/drizzle/drizzle");
 
 router.get('/code/:id', async (req, res) => {
     const id = req.params.id;
@@ -32,10 +33,15 @@ router.post('/code', authLockMiddleware, async (req, res) => {
     }
 
     res.lock(async () => {
-        const usedCode = await registerCodes.useCode(code, userId);
+        const usedCode = await registerCodes.useCode(code);
         if (usedCode) {
-            if (await addRegisteredUser(userId, publicKey, {admin: !!usedCode.admin}))
-                return res.send('Register success');
+            if (await addRegisteredUser(userId, publicKey, {admin: !!usedCode.admin})) {
+                const usedCode2 = await registerCodes.useCode(code, userId);
+                if (usedCode2)
+                    return res.send('Register success');
+                else
+                    res.status(500).send('Failed to use code');
+            }
             else
                 return res.status(400).send('Failed to register user');
         } else {
@@ -58,6 +64,8 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
 
 
 (async () => {
+    await drizzler.promise;
+
     if (!await registerCodes.checkIfAdminCodeWasCreated()) {
         const code = await registerCodes.addNewRegisterCode(true);
         console.log(`> Added new admin code: ${code}`);

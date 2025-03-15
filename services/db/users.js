@@ -1,51 +1,72 @@
-const dbProm = require('./db_internal');
+const db = require('./drizzle/drizzle');
+const {RegisteredUsers} = require('./drizzle/schema');
+const {and, count, eq} = require("drizzle-orm");
 
 async function addRegisteredUser(userId, publicKey, data) {
     if (await getRegisteredUser(userId) !== undefined) {
         return false;
     }
 
-    const db = await dbProm;
-    const collection = db.collection('registeredUsers');
-    const doc = { userId, publicKey, data };
-    const res = await collection.insertOne(doc);
-    // console.log("> Inserted: ", res);
-    return res != undefined && res.acknowledged;
+    try {
+        const res = await db.insert(RegisteredUsers)
+            .values({userId, publicKey, isAdministrator: data.admin});
+
+        return res.rowsAffected > 0;
+    } catch (e) {
+        console.error(`Failed to add registered user: ${e.message}`);
+        return false;
+    }
 }
 
 async function removeRegisteredUser(userId) {
-    const db = await dbProm;
-    const collection = db.collection('registeredUsers');
-    const query = { userId };
-    const res = await collection.deleteOne(query);
-    // console.log("> Deleted: ", res);
-    return res != undefined && res.acknowledged;
+    try {
+        const res = await db.delete(RegisteredUsers)
+            .where(eq(RegisteredUsers.userId, userId));
+
+        return res.rowsAffected > 0;
+    } catch (e) {
+        console.error(`Failed to remove registered user: ${e.message}`);
+        return false;
+    }
 }
 
-async function getRegisteredUser(userId) {
-    const db = await dbProm;
-    const collection = db.collection('registeredUsers');
-    const query = { userId };
-    const result = await collection
-        .find(query)
-        .toArray();
+function mapResultObjToUserData(result) {
+    if (result == undefined)
+        return undefined;
+    return {
+        userId: result.userId,
+        publicKey: result.publicKey,
+        data: {
+            admin: result.isAdministrator
+        }
+    };
+};
 
-    // console.log("> Found: ", result);
-    if (result.length === 0) {
+async function getRegisteredUser(userId) {
+    try {
+        const result = await db.select()
+            .from(RegisteredUsers)
+            .where(eq(RegisteredUsers.userId, userId))
+            .get();
+
+        return mapResultObjToUserData(result);
+    } catch (e) {
+        console.error(`Failed to get registered user: ${e.message}`);
         return undefined;
     }
-
-    return result[0];
 }
 
 async function updateRegisteredUser(userId, data) {
-    const db = await dbProm;
-    const collection = db.collection('registeredUsers');
-    const query = {userId};
-    const update = {$set: {data}};
-    const res = await collection.updateOne(query, update);
-    // console.log("> Updated: ", res);
-    return res != undefined && res.acknowledged;
+    try {
+        const res = await db.update(RegisteredUsers)
+            .set({isAdministrator: data.admin})
+            .where(eq(RegisteredUsers.userId, userId));
+
+        return res.rowsAffected > 0;
+    } catch (e) {
+        console.error(`Failed to update registered user: ${e.message}`);
+        return false;
+    }
 }
 
 async function addTrustedGuestUserIfNotExists(userId, publicKey) {
@@ -71,8 +92,32 @@ async function getPubKeyFromUserId(userId) {
     return user.publicKey;
 }
 
+async function getAllRegisteredUserEntries() {
+    const result = await db.select()
+        .from(RegisteredUsers);
+
+    return result.map(x => {
+        return {
+            userId: x.userId,
+            publicKey: x.publicKey,
+            data: {
+                admin: x.isAdministrator
+            }
+        };
+    });
+}
+
+async function importAllRegisteredUsers(users) {
+    for (let user of users)
+        await addRegisteredUser(user.userId, user.publicKey, user.data);
+}
+
+async function resetUserTable() {
+    await db.delete(RegisteredUsers);
+}
 
 module.exports = {
     addRegisteredUser, removeRegisteredUser, getRegisteredUser, updateRegisteredUser,
-    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId
+    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId,
+    getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable
 };

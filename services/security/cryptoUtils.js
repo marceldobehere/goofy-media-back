@@ -34,6 +34,10 @@ async function hashString(str)
     return hash;
 }
 
+async function signatureToUUIDHash(sig) {
+    let hash = await improvedPbkdf2(JSON.stringify(sig), "GoofyUserHash123", 8, 1234);
+    return hash;
+}
 
 // old pbkdf2 using CryptoJS (slow)
 async function oldPbkdf2(str, salt, keySize, iterations) {
@@ -123,7 +127,7 @@ async function getHashFromObj(obj)
     return hash;
 }
 
-module.exports = {hashString, userHash, getWordList, getHashFromObj, getRandomIntInclusive};
+module.exports = {hashString, userHash, getWordList, getHashFromObj, getRandomIntInclusive, signatureToUUIDHash};
 
 
 
