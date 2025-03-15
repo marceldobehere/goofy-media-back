@@ -133,6 +133,9 @@ async function verifyPost(postObj) {
 
     // Get Public Key
     const publicKey = await users.getPubKeyFromUserId(userId);
+    if (publicKey === undefined) {
+        return "USER NOT FOUND";
+    }
 
     // Validate User ID
     const actualUserId = await cryptoUtils.userHash(publicKey);
@@ -176,6 +179,10 @@ async function addPost(post) {
         const insertTag = [];
         for (let tag of tags)
             insertTag.push({uuid, tag});
+
+        if (insertTag.length < 1) {
+            return true;
+        }
 
         const res2 = await db.insert(Tags)
             .values(insertTag);
@@ -346,6 +353,38 @@ async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
     }
 }
 
+async function getAllPostEntries() {
+    const results = await db.select()
+        .from(Posts);
+
+    let converted = [];
+    for (let post of results) {
+        const tags = await getTagsFromPost(post.uuid);
+        const postObj = {
+            post: {
+                tags: tags,
+                createdAt: post.createdAt,
+                text: post.text,
+                title: post.title
+            },
+            signature: post.signature,
+            userId: post.userId
+        };
+        converted.push(postObj);
+    }
+    return converted;
+}
+
+async function importAllPosts(data) {
+    for (let post of data)
+        await addPost(post);
+}
+
+async function resetPostAndTagTables() {
+    await db.delete(Posts);
+    await db.delete(Tags);
+}
+
 
 module.exports = {
     verifyPost,
@@ -357,5 +396,8 @@ module.exports = {
     sanitizePostObjArr,
     getPostsByUsers,
     getPostsByTags,
-    getPostsByUsersAndTags
+    getPostsByUsersAndTags,
+    getAllPostEntries,
+    importAllPosts,
+    resetPostAndTagTables
 }

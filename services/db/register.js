@@ -131,11 +131,47 @@ async function deleteUnusedCode(code) {
     }
 }
 
+async function getAllCodeEntries() {
+    const result = await db.select()
+        .from(RegisterCodes);
+
+    return result.map(x => {
+        return {
+            code: x.code,
+            admin: x.isAdministrator,
+            usedBy: x.userId,
+            used: x.userId != undefined,
+            createdAt: x.createdAt,
+            usedAt: x.usedAt
+        };
+    });
+}
+
+async function importAllRegisterCodes(registerCodes) {
+    for (let code of registerCodes) {
+        await db.insert(RegisterCodes)
+            .values({
+                code: code.code,
+                isAdministrator: code.admin,
+                usedAt: code.usedAt,
+                userId: code.usedBy,
+                createdAt: code.createdAt
+            });
+    }
+}
+
+async function resetRegisterCodeTable() {
+    await db.delete(RegisterCodes);
+}
+
 module.exports = {
     addNewRegisterCode,
     checkAvailableCode,
     useCode,
     checkIfAdminCodeWasCreated,
     getAllCodes,
-    deleteUnusedCode
+    deleteUnusedCode,
+    getAllCodeEntries,
+    importAllRegisterCodes,
+    resetRegisterCodeTable
 };

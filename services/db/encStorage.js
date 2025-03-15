@@ -77,5 +77,31 @@ async function removeEncStorageEntry(userId) {
 }
 
 
+async function getAllEncStorageEntries() {
+    const result = await db.select()
+        .from(EncryptedStorage);
 
-module.exports = { createOrUpdateEncStorageEntry, getEncStorageEntryUserId, getEncStorageEntryUsername, removeEncStorageEntry, checkEncStorageEntryAvailable };
+    return result.map(x => {
+        return {
+            userId: x.userId,
+            username: x.username,
+            data: JSON.parse(x.data)
+        };
+    });
+}
+
+async function importAllEncStorageEntries(data) {
+    for (let entry of data)
+        await createOrUpdateEncStorageEntry(entry.userId, entry.username, entry.data);
+    return true;
+}
+
+async function resetEncStorageTable() {
+    await db.delete(EncryptedStorage);
+}
+
+module.exports = {
+    createOrUpdateEncStorageEntry, getEncStorageEntryUserId, getEncStorageEntryUsername,
+    removeEncStorageEntry, checkEncStorageEntryAvailable,
+    getAllEncStorageEntries, importAllEncStorageEntries, resetEncStorageTable
+};

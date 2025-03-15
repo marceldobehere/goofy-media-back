@@ -92,8 +92,32 @@ async function getPubKeyFromUserId(userId) {
     return user.publicKey;
 }
 
+async function getAllRegisteredUserEntries() {
+    const result = await db.select()
+        .from(RegisteredUsers);
+
+    return result.map(x => {
+        return {
+            userId: x.userId,
+            publicKey: x.publicKey,
+            data: {
+                admin: x.isAdministrator
+            }
+        };
+    });
+}
+
+async function importAllRegisteredUsers(users) {
+    for (let user of users)
+        await addRegisteredUser(user.userId, user.publicKey, user.data);
+}
+
+async function resetUserTable() {
+    await db.delete(RegisteredUsers);
+}
 
 module.exports = {
     addRegisteredUser, removeRegisteredUser, getRegisteredUser, updateRegisteredUser,
-    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId
+    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId,
+    getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable
 };
