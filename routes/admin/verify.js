@@ -1,7 +1,6 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {authAdminMiddleware} = require("../authValidation");
-
+import { authAdminMiddleware } from "../authValidation.js";
 
 router.get('/', authAdminMiddleware, async (req, res) => {
     const userId = req.userId;
@@ -10,4 +9,4 @@ router.get('/', authAdminMiddleware, async (req, res) => {
 });
 
 
-module.exports = router;
+export default router;

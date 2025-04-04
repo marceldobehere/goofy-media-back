@@ -1,6 +1,6 @@
 import express from 'express';
 import verifyRouter from './verify.js';
-import codesRouter from './codes.js';
+import * as codesRouter from './codes.js';
 import exportRouter from './export.js';
 
 const router = express.Router();

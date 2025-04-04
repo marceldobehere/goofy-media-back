@@ -8,10 +8,10 @@ dotEnv.config();
 // const userRouter = require('./routes/user/userRoutes');
 // const adminRouter = require('./routes/admin/adminRoutes');
 
-import indexRouter from './routes';
-// import guestRouter from './routes/guest/guestRoutes';
-// import userRouter from './routes/user/userRoutes';
-// import adminRouter from './routes/admin/adminRoutes';
+import indexRouter from './routes/index.js';
+import guestRouter from './routes/guest/guestRoutes.js';
+import userRouter from './routes/user/userRoutes.js';
+import adminRouter from './routes/admin/adminRoutes.js';
 
 const app = express();
 
@@ -20,8 +20,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 app.use('/', indexRouter);
-// app.use('/guest', guestRouter);
-// app.use('/user', userRouter);
-// app.use('/admin', adminRouter);
+app.use('/guest', guestRouter);
+app.use('/user', userRouter);
+app.use('/admin', adminRouter);
 
 export default app;

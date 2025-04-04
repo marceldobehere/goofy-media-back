@@ -3,7 +3,7 @@ import {Posts, Tags} from './drizzle/schema.js';
 import {and, eq, or, desc} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
-import users from './users.js';
+import * as users from './users.js';
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
