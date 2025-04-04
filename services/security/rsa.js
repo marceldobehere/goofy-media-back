@@ -1,8 +1,8 @@
-const JSEncrypt = require("jsencrypt");
-const CryptoJS = require("crypto-js");
-const {getHashFromObj} = require("./cryptoUtils");
+import {JSEncrypt} from "jsencrypt";
+import CryptoJS from "crypto-js";
+import {getHashFromObj} from "./cryptoUtils.js";
 
-async function verifyObj(obj, signature, publicKey) {
+export async function verifyObj(obj, signature, publicKey) {
     try {
         let hash = await getHashFromObj(obj);
 
@@ -16,8 +16,3 @@ async function verifyObj(obj, signature, publicKey) {
         return false;
     }
 }
-
-
-module.exports = {
-    verifyObj
-};

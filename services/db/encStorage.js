@@ -1,8 +1,8 @@
-const db = require('./drizzle/drizzle');
-const { EncryptedStorage} = require('./drizzle/schema');
-const {and, count, eq} = require("drizzle-orm");
+import db from './drizzle/drizzle.js';
+import {EncryptedStorage} from './drizzle/schema.js';
+import {eq} from 'drizzle-orm';
 
-async function createOrUpdateEncStorageEntry(userId, username, data) {
+export async function createOrUpdateEncStorageEntry(userId, username, data) {
     if (userId === undefined || username === undefined || data === undefined)
         return false;
 
@@ -27,7 +27,7 @@ async function createOrUpdateEncStorageEntry(userId, username, data) {
     }
 }
 
-async function getEncStorageEntryUserId(userId) {
+export async function getEncStorageEntryUserId(userId) {
     try {
         const result = await db.select()
             .from(EncryptedStorage)
@@ -44,7 +44,7 @@ async function getEncStorageEntryUserId(userId) {
     }
 }
 
-async function getEncStorageEntryUsername(username) {
+export async function getEncStorageEntryUsername(username) {
     try {
         const result = await db.select()
             .from(EncryptedStorage)
@@ -61,11 +61,11 @@ async function getEncStorageEntryUsername(username) {
     }
 }
 
-async function checkEncStorageEntryAvailable(username) {
+export async function checkEncStorageEntryAvailable(username) {
     return await getEncStorageEntryUsername(username) === undefined;
 }
 
-async function removeEncStorageEntry(userId) {
+export async function removeEncStorageEntry(userId) {
     try {
         const res = await db.delete(EncryptedStorage)
             .where(eq(EncryptedStorage.userId, userId));
@@ -76,8 +76,7 @@ async function removeEncStorageEntry(userId) {
     }
 }
 
-
-async function getAllEncStorageEntries() {
+export async function getAllEncStorageEntries() {
     const result = await db.select()
         .from(EncryptedStorage);
 
@@ -90,18 +89,12 @@ async function getAllEncStorageEntries() {
     });
 }
 
-async function importAllEncStorageEntries(data) {
+export async function importAllEncStorageEntries(data) {
     for (let entry of data)
         await createOrUpdateEncStorageEntry(entry.userId, entry.username, entry.data);
     return true;
 }
 
-async function resetEncStorageTable() {
+export async function resetEncStorageTable() {
     await db.delete(EncryptedStorage);
 }
-
-module.exports = {
-    createOrUpdateEncStorageEntry, getEncStorageEntryUserId, getEncStorageEntryUsername,
-    removeEncStorageEntry, checkEncStorageEntryAvailable,
-    getAllEncStorageEntries, importAllEncStorageEntries, resetEncStorageTable
-};

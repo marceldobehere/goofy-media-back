@@ -1,27 +1,23 @@
 const logLock = false;
 
-class AsyncLock {
-    constructor () {
+export default class AsyncLock {
+    constructor() {
         this.promiseArr = [];
         this.resolveArr = [];
     }
 
-    disable ()
-    {
-        if (this.resolveArr.length > 0)
-        {
+    disable() {
+        if (this.resolveArr.length > 0) {
             if (logLock)
                 console.log("Disabling lock");
 
             this.promiseArr.shift();
             this.resolveArr.shift()();
-        }
-        else
+        } else
             alert("Invalid lock disable")
     }
 
-    async enable ()
-    {
+    async enable() {
         if (logLock)
             console.log("Enabling lock");
 
@@ -38,19 +34,16 @@ class AsyncLock {
         await bigPromise;
     }
 
-    isLocked()
-    {
+    isLocked() {
         return this.resolveArr.length > 0;
     }
 
-    reset()
-    {
+    reset() {
         this.promiseArr = [];
         this.resolveArr = [];
     }
 
-    async tryEnable ()
-    {
+    async tryEnable() {
         if (logLock)
             console.log("Trying to enable lock");
 
@@ -72,6 +65,6 @@ class AsyncLock {
             console.error("Error: ", e);
         }
     }
-}
+};
 
-module.exports = AsyncLock;
+// module.exports = AsyncLock;

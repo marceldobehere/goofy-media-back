@@ -1,9 +1,9 @@
-const db = require('./drizzle/drizzle');
-const {RegisterCodes} = require('./drizzle/schema');
-const {and, count, eq, isNull} = require("drizzle-orm");
+import db from './drizzle/drizzle.js';
+import {RegisterCodes} from './drizzle/schema.js';
+import {and, count, eq, isNull} from 'drizzle-orm';
 
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
-const getRandomCode = () => {
+export const getRandomCode = () => {
     const chars = 'abcdefghijklmnopqrstuvwxyz_0123456789';
     let code = '';
     for (let i = 0; i < 15; i++) {
@@ -13,12 +13,12 @@ const getRandomCode = () => {
 }
 
 
-async function addNewRegisterCode(admin) {
+export async function addNewRegisterCode(admin) {
     const code = getRandomCode();
 
     try {
         await db.insert(RegisterCodes)
-            .values({code, isAdministrator: !!admin});
+            .values({code, isAdministrator: !!admin, createdAt: Date.now()});
         return code;
     } catch (e) {
         console.error(`Failed to add new register code: ${e.message}`);
@@ -41,7 +41,7 @@ function convertResultToCodeObj(result) {
     }
 }
 
-async function getAvailableCode(code, ignoreUsed) {
+export async function getAvailableCode(code, ignoreUsed) {
     try {
         let result;
         if (ignoreUsed)
@@ -62,12 +62,12 @@ async function getAvailableCode(code, ignoreUsed) {
     }
 }
 
-async function checkAvailableCode(code) {
+export async function checkAvailableCode(code) {
     const codeDoc = await getAvailableCode(code);
     return !!codeDoc;
 }
 
-async function useCode(code, userId) {
+export async function useCode(code, userId) {
     const foundCode = await getAvailableCode(code, userId);
     if (foundCode == undefined && userId == undefined)
         return null;
@@ -94,7 +94,7 @@ async function useCode(code, userId) {
     }
 }
 
-async function checkIfAdminCodeWasCreated() {
+export async function checkIfAdminCodeWasCreated() {
     try {
         const result = await db.select({codes: count()})
             .from(RegisterCodes)
@@ -108,7 +108,7 @@ async function checkIfAdminCodeWasCreated() {
     }
 }
 
-async function getAllCodes() {
+export async function getAllCodes() {
     try {
         const results = await db.select()
             .from(RegisterCodes);
@@ -119,7 +119,7 @@ async function getAllCodes() {
     }
 }
 
-async function deleteUnusedCode(code) {
+export async function deleteUnusedCode(code) {
     try {
         const res = await db.delete(RegisterCodes)
             .where(and(eq(RegisterCodes.code, code), isNull(RegisterCodes.usedAt)));
@@ -131,7 +131,7 @@ async function deleteUnusedCode(code) {
     }
 }
 
-async function getAllCodeEntries() {
+export async function getAllCodeEntries() {
     const result = await db.select()
         .from(RegisterCodes);
 
@@ -147,7 +147,7 @@ async function getAllCodeEntries() {
     });
 }
 
-async function importAllRegisterCodes(registerCodes) {
+export async function importAllRegisterCodes(registerCodes) {
     for (let code of registerCodes) {
         await db.insert(RegisterCodes)
             .values({
@@ -160,18 +160,7 @@ async function importAllRegisterCodes(registerCodes) {
     }
 }
 
-async function resetRegisterCodeTable() {
+export async function resetRegisterCodeTable() {
     await db.delete(RegisterCodes);
 }
 
-module.exports = {
-    addNewRegisterCode,
-    checkAvailableCode,
-    useCode,
-    checkIfAdminCodeWasCreated,
-    getAllCodes,
-    deleteUnusedCode,
-    getAllCodeEntries,
-    importAllRegisterCodes,
-    resetRegisterCodeTable
-};

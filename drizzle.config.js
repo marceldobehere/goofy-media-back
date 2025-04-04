@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-
 export default {
     schema: "./services/db/drizzle/schema.js",
     out: "./migrations",

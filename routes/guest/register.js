@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import {authLockMiddleware, authRegisteredMiddleware} from '../authValidation.js';
+import * as registerCodes from '../../services/db/register.js';
+import {addRegisteredUser} from '../../services/db/users.js';
+import drizzler from '../../services/db/drizzle/drizzle.js';
+
 const router = express.Router();
-const {lockMiddleware} = require('./../authValidation')
-const registerCodes = require('../../services/db/register')
-const {authRegisteredMiddleware, authLockMiddleware} = require("../authValidation");
-const { addRegisteredUser } = require('../../services/db/users');
-const drizzler = require("../../services/db/drizzle/drizzle");
+export default router;
 
 router.get('/code/:id', async (req, res) => {
     const id = req.params.id;
@@ -41,8 +42,7 @@ router.post('/code', authLockMiddleware, async (req, res) => {
                     return res.send('Register success');
                 else
                     res.status(500).send('Failed to use code');
-            }
-            else
+            } else
                 return res.status(400).send('Failed to register user');
         } else {
             res.status(400).send('Register code not available');
@@ -62,7 +62,6 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
 });
 
 
-
 (async () => {
     await drizzler.promise;
 
@@ -71,6 +70,3 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
         console.log(`> Added new admin code: ${code}`);
     }
 })();
-
-
-module.exports = router;
