@@ -1,5 +1,4 @@
 import express from 'express';
-import {lockMiddleware} from '../authValidation.js';
 import {authRegisteredMiddleware, authLockMiddleware, lockMiddleware} from '../authValidation.js';
 import {createOrUpdateEncStorageEntry, getEncStorageEntryUsername} from '../../services/db/encStorage.js';
 

@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {authRegisteredMiddleware} = require("../authValidation");
+import {authRegisteredMiddleware} from "../authValidation.js";
 
 
 router.get('/', authRegisteredMiddleware, async (req, res) => {
@@ -10,4 +10,4 @@ router.get('/', authRegisteredMiddleware, async (req, res) => {
 });
 
 
-module.exports = router;
+export default router;

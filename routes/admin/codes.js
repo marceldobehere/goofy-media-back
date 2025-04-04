@@ -1,8 +1,7 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {authAdminMiddleware} = require("../authValidation");
-const registerCodes = require('../../services/db/register');
-
+import { authAdminMiddleware } from "../authValidation.js";
+import * as registerCodes from '../../services/db/register.js';
 
 async function extractCodes() {
     const codes = await registerCodes.getAllCodes();
