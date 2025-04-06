@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {authAdminMiddleware} = require("../authValidation");
-const registerCodes = require('../../services/db/register');
-const {getAllEncStorageEntries, importAllEncStorageEntries, resetEncStorageTable} = require("../../services/db/encStorage");
-const {getAllCodeEntries, importAllRegisterCodes, resetRegisterCodeTable} = require("../../services/db/register");
-const {getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable} = require("../../services/db/users");
-const {getAllPostEntries, importAllPosts, resetPostAndTagTables} = require("../../services/db/posts");
+import {authAdminMiddleware} from "../authValidation.js";
+import * as registerCodes from '../../services/db/register.js';
+import {getAllEncStorageEntries, importAllEncStorageEntries, resetEncStorageTable} from "../../services/db/encStorage.js";
+import {getAllCodeEntries, importAllRegisterCodes, resetRegisterCodeTable} from "../../services/db/register.js";
+import {getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable} from "../../services/db/users.js";
+import {getAllPostEntries, importAllPosts, resetPostAndTagTables} from "../../services/db/posts.js";
 
 
 async function getAllExportData() {
@@ -60,7 +60,7 @@ async function importAllData(data) {
     console.log(" > Importing Posts");
     const posts = data.posts;
     if (posts)
-        await importAllPosts(posts);
+        await importAllPosts(posts, true);
 
     console.log("> Imported data!");
     return true;
@@ -89,4 +89,4 @@ router.post('/', authAdminMiddleware, async (req, res) => {
 
 
 
-module.exports = router;
+export default router;

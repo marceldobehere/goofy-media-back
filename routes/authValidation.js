@@ -1,13 +1,14 @@
 global.window = this
-const JSEncrypt = require('jsencrypt');
-const CryptoJS = require('crypto-js');
-const AsyncLock = require('./asyncLock');
-const {userHash} = require('../services/security/cryptoUtils')
-const { getRegisteredUser, getTrustedGuestUser} = require('../services/db/users');
+import JSEncrypt from "jsencrypt";
+import CryptoJS from "crypto-js";
+import AsyncLock from "./asyncLock.js";
+import {userHash} from "../services/security/cryptoUtils.js";
+import {getRegisteredUser, getTrustedGuestUser} from "../services/db/users.js";
 
 // check if id exists with public key
 let idList = [];
 const msExtra = 1000 * 30;
+
 function checkId(publicKey, id, validUntil) {
     // console.log(" > Checking id: ", id, publicKey, validUntil)
     // console.log(" > List: ", idList)
@@ -28,8 +29,7 @@ function checkId(publicKey, id, validUntil) {
     return true;
 }
 
-async function getHashFromObj(obj)
-{
+async function getHashFromObj(obj) {
     let hash = CryptoJS.SHA256(JSON.stringify(obj)).toString(CryptoJS.enc.Base64);
     return hash;
 }
@@ -83,7 +83,7 @@ function parseHeaders(headers) {
 
 const authLocks = new Map();
 
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
     let {id, signature, validUntil, publicKey} = parseHeaders(req.headers);
     if (id === null)
         return res.status(400).send("Unsigned request unauthorized");
@@ -107,23 +107,25 @@ const authMiddleware = async (req, res, next) => {
     await next();
 };
 
-const lockMiddleware = async (req, res, next) => {
+export const lockMiddleware = async (req, res, next) => {
     let idx = `${req.url}_${req.method}`;
     if (!authLocks.has(idx))
         authLocks.set(idx, new AsyncLock());
     const lock = authLocks.get(idx);
     // console.log(" > Got lock: ", url, lock)
-    res.lock = async (func) => {await lock.do(func)};
+    res.lock = async (func) => {
+        await lock.do(func)
+    };
     await next();
 };
 
-const authLockMiddleware = async (req, res, next) => {
+export const authLockMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         await lockMiddleware(req, res, next);
     });
 };
 
-const authRegisteredMiddleware = async (req, res, next) => {
+export const authRegisteredMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         const publicKey = req.publicKey;
         const userId = req.userId;
@@ -137,7 +139,7 @@ const authRegisteredMiddleware = async (req, res, next) => {
     });
 }
 
-const authGuestMiddleware = async (req, res, next) => {
+export const authGuestMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         const userId = req.userId;
         if (!await getTrustedGuestUser(userId) && !await getRegisteredUser(userId))
@@ -146,7 +148,7 @@ const authGuestMiddleware = async (req, res, next) => {
     });
 }
 
-const authAdminMiddleware = async (req, res, next) => {
+export const authAdminMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         const publicKey = req.publicKey;
         const userId = req.userId;
@@ -166,5 +168,3 @@ const authAdminMiddleware = async (req, res, next) => {
         await next();
     });
 }
-
-module.exports = {authMiddleware, lockMiddleware, authLockMiddleware, authRegisteredMiddleware, authGuestMiddleware, authAdminMiddleware};

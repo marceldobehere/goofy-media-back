@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {authRegisteredMiddleware} = require("../authValidation");
+import {authRegisteredMiddleware} from "../authValidation.js";
 
 
 router.get('/', authRegisteredMiddleware, async (req, res) => {
-    const userId = req.userId;
+    // const userId = req.userId;
     // console.log(`> Registered User ${userId} verified!`);
     res.send('User verify success');
 });
 
 
-module.exports = router;
+export default router;

@@ -1,11 +1,10 @@
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+import registerRouter from './register.js';
+import encStorageRouter from './encStorage.js';
 
-const registerRouter = require('./register');
-const encStorageRouter = require('./encStorage');
+const router = express.Router();
+export default router;
+
 
 router.use('/register', registerRouter);
 router.use('/enc', encStorageRouter);
-
-
-module.exports = router;

@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {authMiddleware, lockMiddleware, authLockMiddleware} = require('../authValidation')
+import {authMiddleware, lockMiddleware, authLockMiddleware} from '../authValidation.js'
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -85,4 +85,4 @@ router.post('/test2', authMiddleware, async function (req, res, next) {
 
 
 
-module.exports = router;
+export default router;

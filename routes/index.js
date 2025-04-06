@@ -1,10 +1,9 @@
-var express = require('express');
-var router = express.Router();
+import express from "express";
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  // redirect to https://marceldobehere.github.io/goofy-media-front/
+const router = express.Router();
+
+router.get('/', function (req, res, next) {
     res.redirect('https://marceldobehere.github.io/goofy-media-front/');
 });
 
-module.exports = router;
+export default router;

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const http = require('http');
-const https = require('https');
+import fs from 'fs';
+import http from 'http';
+import https from 'https';
+const __dirname = import.meta.dirname;
 
 const DATA_PATH = __dirname + "/../data";
 
@@ -28,8 +29,9 @@ if (SSL && !fs.existsSync(DATA_PATH + "/ssl"))
     process.exit(1);
 }
 
-var app = require('../app');
-const drizzler = require("../services/db/drizzle/drizzle");
+import app from '../app.js';
+import drizzler from "../services/db/drizzle/drizzle.js";
+
 
 (async () => {
     let server;

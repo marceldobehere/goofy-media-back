@@ -1,8 +1,8 @@
-const db = require('./drizzle/drizzle');
-const {RegisteredUsers} = require('./drizzle/schema');
-const {and, count, eq} = require("drizzle-orm");
+import db from './drizzle/drizzle.js';
+import {RegisteredUsers} from './drizzle/schema.js';
+import {and, count, eq} from 'drizzle-orm';
 
-async function addRegisteredUser(userId, publicKey, data) {
+export async function addRegisteredUser(userId, publicKey, data) {
     if (await getRegisteredUser(userId) !== undefined) {
         return false;
     }
@@ -18,7 +18,7 @@ async function addRegisteredUser(userId, publicKey, data) {
     }
 }
 
-async function removeRegisteredUser(userId) {
+export async function removeRegisteredUser(userId) {
     try {
         const res = await db.delete(RegisteredUsers)
             .where(eq(RegisteredUsers.userId, userId));
@@ -42,7 +42,7 @@ function mapResultObjToUserData(result) {
     };
 };
 
-async function getRegisteredUser(userId) {
+export async function getRegisteredUser(userId) {
     try {
         const result = await db.select()
             .from(RegisteredUsers)
@@ -56,7 +56,7 @@ async function getRegisteredUser(userId) {
     }
 }
 
-async function updateRegisteredUser(userId, data) {
+export async function updateRegisteredUser(userId, data) {
     try {
         const res = await db.update(RegisteredUsers)
             .set({isAdministrator: data.admin})
@@ -69,20 +69,21 @@ async function updateRegisteredUser(userId, data) {
     }
 }
 
-async function addTrustedGuestUserIfNotExists(userId, publicKey) {
+
+export async function addTrustedGuestUserIfNotExists(userId, publicKey) {
 
 }
 
-async function removeTrustedGuestUser(userId) {
+export async function removeTrustedGuestUser(userId) {
 
 }
 
-async function getTrustedGuestUser(userId) {
+export async function getTrustedGuestUser(userId) {
 
 }
 
 
-async function getPubKeyFromUserId(userId) {
+export async function getPubKeyFromUserId(userId) {
     let user = await getRegisteredUser(userId);
     if (user === undefined)
         user = await getTrustedGuestUser(userId);
@@ -92,7 +93,7 @@ async function getPubKeyFromUserId(userId) {
     return user.publicKey;
 }
 
-async function getAllRegisteredUserEntries() {
+export async function getAllRegisteredUserEntries() {
     const result = await db.select()
         .from(RegisteredUsers);
 
@@ -107,17 +108,23 @@ async function getAllRegisteredUserEntries() {
     });
 }
 
-async function importAllRegisteredUsers(users) {
+export async function importAllRegisteredUsers(users) {
     for (let user of users)
         await addRegisteredUser(user.userId, user.publicKey, user.data);
 }
 
-async function resetUserTable() {
+export async function resetUserTable() {
     await db.delete(RegisteredUsers);
 }
 
-module.exports = {
-    addRegisteredUser, removeRegisteredUser, getRegisteredUser, updateRegisteredUser,
-    addTrustedGuestUserIfNotExists, removeTrustedGuestUser, getTrustedGuestUser, getPubKeyFromUserId,
-    getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable
-};
+export async function getPublicKeyFromUserId(userId) {
+    const registeredUser = await getRegisteredUser(userId);
+    if (registeredUser !== undefined)
+        return registeredUser.publicKey;
+
+    // Check trusted / guest users
+
+    // Ask other servers in trusted network
+
+    return undefined;
+}

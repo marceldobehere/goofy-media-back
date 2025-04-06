@@ -1,10 +1,12 @@
-const db = require('./drizzle/drizzle');
-const {Posts, Tags} = require('./drizzle/schema');
-const {and, count, eq, or, desc} = require("drizzle-orm");
-const cryptoUtils = require('../security/cryptoUtils');
-const rsa = require('../security/rsa');
-const users = require('./users');
+import db from './drizzle/drizzle.js';
+import {Posts, Tags} from './drizzle/schema.js';
+import {and, eq, or, desc} from 'drizzle-orm';
+import * as cryptoUtils from '../security/cryptoUtils.js';
+import * as rsa from '../security/rsa.js';
+import * as users from './users.js';
 
+const DEFAULT_LIMIT = 50;
+const DEFAULT_START = 0;
 
 /*
 Post Structure:
@@ -34,7 +36,7 @@ POST DB
  - signature: text().notNull(),
 */
 
-async function sanitizePost(post) {
+export async function sanitizePost(post) {
     try {
         return {
             title: post.title,
@@ -47,7 +49,7 @@ async function sanitizePost(post) {
     }
 }
 
-async function sanitizePostObj(postObj) {
+export async function sanitizePostObj(postObj) {
     try {
         return {
             post: await sanitizePost(postObj.post),
@@ -60,7 +62,7 @@ async function sanitizePostObj(postObj) {
     }
 }
 
-async function sanitizePostObjArr(posts) {
+export async function sanitizePostObjArr(posts) {
     let sanitized = [];
     for (let post of posts) {
         const sanitizedPost = await sanitizePostObj(post);
@@ -71,7 +73,7 @@ async function sanitizePostObjArr(posts) {
     return sanitized;
 }
 
-async function verifyPost(postObj) {
+export async function verifyPost(postObj) {
     if (postObj === undefined) {
         return "POST OBJ UNDEFINED";
     }
@@ -152,9 +154,9 @@ async function verifyPost(postObj) {
     return "OK";
 }
 
-async function addPost(post) {
+export async function addPost(post, ignoreValid) {
     post = await sanitizePostObj(post);
-    if ((await verifyPost(post)) !== "OK") {
+    if ((ignoreValid == undefined ) && ((await verifyPost(post)) !== "OK")) {
         return false;
     }
 
@@ -205,11 +207,7 @@ async function addPost(post) {
     }
 }
 
-const DEFAULT_LIMIT = 50;
-const DEFAULT_START = 0;
-
-
-async function getTagsFromPost(postUuid) {
+export async function getTagsFromPost(postUuid) {
     try {
         const res = await db.select()
             .from(Tags)
@@ -228,7 +226,7 @@ async function getTagsFromPost(postUuid) {
     }
 }
 
-async function mapResultToPostObj(result) {
+export async function mapResultToPostObj(result) {
     if (result === undefined)
         return undefined;
 
@@ -246,7 +244,7 @@ async function mapResultToPostObj(result) {
     };
 }
 
-async function getWithFilters(filters, limit, start) {
+export async function getWithFilters(filters, limit, start) {
     if (limit === undefined || typeof limit !== 'number' || limit < 1)
         limit = DEFAULT_LIMIT;
     if (start === undefined || typeof start !== 'number' || start < 0)
@@ -276,17 +274,17 @@ async function getWithFilters(filters, limit, start) {
     }
 }
 
-async function getAllPosts(limit, start) {
+export async function getAllPosts(limit, start) {
     const res = await getWithFilters([], limit, start);
     return res;
 }
 
-async function getPostsByUser(userId, limit, start) {
+export async function getPostsByUser(userId, limit, start) {
     const res = await getWithFilters([eq(Posts.userId, userId)], limit, start);
     return res;
 }
 
-async function getPostsByUsers(userIds, limit, start) {
+export async function getPostsByUsers(userIds, limit, start) {
     const filterArray = [];
     for (let userId of userIds)
         filterArray.push(eq(Posts.userId, userId));
@@ -295,20 +293,19 @@ async function getPostsByUsers(userIds, limit, start) {
     return res;
 }
 
-
-async function getPostsByTag(tag, limit, start) {
+export async function getPostsByTag(tag, limit, start) {
     return await getPostsByTags([tag], limit, start);
 }
 
-async function getPostsByTags(tags, limit, start) {
+export async function getPostsByTags(tags, limit, start) {
     return await getPostsByTagsAndMaybeUsers(tags, undefined, limit, start);
 }
 
-async function getPostsByUsersAndTags(userIds, tags, limit, start) {
+export async function getPostsByUsersAndTags(userIds, tags, limit, start) {
     return await getPostsByTagsAndMaybeUsers(tags, userIds, limit, start);
 }
 
-async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
+export async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
     try {
         const tagFilters = [];
         for (let tag of tags)
@@ -353,7 +350,7 @@ async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
     }
 }
 
-async function getAllPostEntries() {
+export async function getAllPostEntries() {
     const results = await db.select()
         .from(Posts);
 
@@ -375,29 +372,12 @@ async function getAllPostEntries() {
     return converted;
 }
 
-async function importAllPosts(data) {
+export async function importAllPosts(data, ignoreValid) {
     for (let post of data)
-        await addPost(post);
+        await addPost(post, ignoreValid);
 }
 
-async function resetPostAndTagTables() {
+export async function resetPostAndTagTables() {
     await db.delete(Posts);
     await db.delete(Tags);
-}
-
-
-module.exports = {
-    verifyPost,
-    addPost,
-    getAllPosts,
-    getPostsByUser,
-    getPostsByTag,
-    sanitizePostObj,
-    sanitizePostObjArr,
-    getPostsByUsers,
-    getPostsByTags,
-    getPostsByUsersAndTags,
-    getAllPostEntries,
-    importAllPosts,
-    resetPostAndTagTables
 }

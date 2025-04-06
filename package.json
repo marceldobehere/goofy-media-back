@@ -2,7 +2,7 @@
   "name": "goofy-media-back",
   "version": "0.0.0",
   "private": true,
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "start": "node api/index.js",
     "dev": "nodemon api/index.js",

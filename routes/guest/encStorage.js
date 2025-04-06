@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
+import {authRegisteredMiddleware, authLockMiddleware, lockMiddleware} from '../authValidation.js';
+import {createOrUpdateEncStorageEntry, getEncStorageEntryUsername} from '../../services/db/encStorage.js';
+
 const router = express.Router();
-const {lockMiddleware} = require('./../authValidation')
-const registerCodes = require('../../services/db/register')
-const {authRegisteredMiddleware, authLockMiddleware} = require("../authValidation");
-const { createOrUpdateEncStorageEntry, getEncStorageEntryUsername, checkEncStorageEntryAvailable } = require('../../services/db/encStorage');
+export default router;
 
 router.post('/secret-storage', lockMiddleware, authRegisteredMiddleware, async (req, res) => {
     const username = req.body.username;
@@ -47,7 +47,3 @@ router.get('/secret-storage/:id', async (req, res) => {
 
     res.send(data);
 });
-
-
-
-module.exports = router;

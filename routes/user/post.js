@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
+import {getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
     getPostsByUsersAndTags
-} = require("../../services/db/posts");
-const {authRegisteredMiddleware} = require("../authValidation");
+} from "../../services/db/posts.js";
+import {authRegisteredMiddleware} from "../authValidation.js";
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
     const body = req.body;
@@ -110,4 +110,4 @@ router.post('/', authRegisteredMiddleware, async (req, res) => {
     res.send('Post added');
 });
 
-module.exports = router;
+export default router;

@@ -1,11 +1,12 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+import './services/loadConf.js'
+import express from 'express';
+import cors from 'cors';
 
-const indexRouter = require('./routes');
-const guestRouter = require('./routes/guest/guestRoutes');
-const userRouter = require('./routes/user/userRoutes');
-const adminRouter = require('./routes/admin/adminRoutes');
+
+import indexRouter from './routes/index.js';
+import guestRouter from './routes/guest/guestRoutes.js';
+import userRouter from './routes/user/userRoutes.js';
+import adminRouter from './routes/admin/adminRoutes.js';
 
 const app = express();
 
@@ -18,4 +19,4 @@ app.use('/guest', guestRouter);
 app.use('/user', userRouter);
 app.use('/admin', adminRouter);
 
-module.exports = app;
+export default app;
