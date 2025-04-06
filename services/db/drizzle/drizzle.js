@@ -16,10 +16,10 @@ drizzler.promise = new Promise(async (res, rej) => {
             migrationsFolder: './migrations',
         });
 
-        console.log('Drizzler is ready');
+        console.log('> Drizzler is ready');
         res(drizzler);
     } catch (e) {
-        console.error('Drizzler failed to start', e);
+        console.error('> Drizzler failed to start', e);
         rej(e);
     }
 });

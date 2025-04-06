@@ -116,3 +116,15 @@ export async function importAllRegisteredUsers(users) {
 export async function resetUserTable() {
     await db.delete(RegisteredUsers);
 }
+
+export async function getPublicKeyFromUserId(userId) {
+    const registeredUser = await getRegisteredUser(userId);
+    if (registeredUser !== undefined)
+        return registeredUser.publicKey;
+
+    // Check trusted / guest users
+
+    // Ask other servers in trusted network
+
+    return undefined;
+}

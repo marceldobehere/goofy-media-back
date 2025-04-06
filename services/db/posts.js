@@ -154,9 +154,9 @@ export async function verifyPost(postObj) {
     return "OK";
 }
 
-export async function addPost(post) {
+export async function addPost(post, ignoreValid) {
     post = await sanitizePostObj(post);
-    if ((await verifyPost(post)) !== "OK") {
+    if ((ignoreValid == undefined ) && ((await verifyPost(post)) !== "OK")) {
         return false;
     }
 
@@ -372,9 +372,9 @@ export async function getAllPostEntries() {
     return converted;
 }
 
-export async function importAllPosts(data) {
+export async function importAllPosts(data, ignoreValid) {
     for (let post of data)
-        await addPost(post);
+        await addPost(post, ignoreValid);
 }
 
 export async function resetPostAndTagTables() {

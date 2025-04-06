@@ -1,12 +1,7 @@
-import dotEnv from 'dotenv';
+import './services/loadConf.js'
 import express from 'express';
 import cors from 'cors';
-dotEnv.config();
 
-// const indexRouter = require('./routes');
-// const guestRouter = require('./routes/guest/guestRoutes');
-// const userRouter = require('./routes/user/userRoutes');
-// const adminRouter = require('./routes/admin/adminRoutes');
 
 import indexRouter from './routes/index.js';
 import guestRouter from './routes/guest/guestRoutes.js';

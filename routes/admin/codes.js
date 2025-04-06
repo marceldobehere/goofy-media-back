@@ -63,3 +63,5 @@ router.post('/', authAdminMiddleware, async (req, res) => {
     console.log(`> Admin user ${req.userId} generated new code: ${code} (admin: ${admin})`);
     res.send({code});
 });
+
+export default router;

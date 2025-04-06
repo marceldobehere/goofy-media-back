@@ -1,5 +1,5 @@
 global.window = this
-import {JSEncrypt} from "jsencrypt";
+import JSEncrypt from "jsencrypt";
 import CryptoJS from "crypto-js";
 import AsyncLock from "./asyncLock.js";
 import {userHash} from "../services/security/cryptoUtils.js";

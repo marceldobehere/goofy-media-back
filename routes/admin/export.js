@@ -60,7 +60,7 @@ async function importAllData(data) {
     console.log(" > Importing Posts");
     const posts = data.posts;
     if (posts)
-        await importAllPosts(posts);
+        await importAllPosts(posts, true);
 
     console.log("> Imported data!");
     return true;
