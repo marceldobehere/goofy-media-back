@@ -1,7 +1,8 @@
 import express from 'express';
 const router = express.Router();
-import {getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
-    getPostsByUsersAndTags
+import {
+    getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
+    getPostsByUsersAndTags, getPostByUuid, sanitizePostObj, getTagsStartingWith
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware} from "../authValidation.js";
 
@@ -79,6 +80,31 @@ router.get('/tag/:tag', async (req, res) => {
         return res.status(500).send('Failed to get posts');
 
     const sanitized = await sanitizePostObjArr(posts);
+    res.send(sanitized);
+});
+
+router.get('/tags/like/:tag', async (req, res) => {
+    const tag = req.params.tag;
+    if (!tag)
+        return res.status(400).send('Missing tag');
+
+    const tags = await getTagsStartingWith(tag);
+    if (tags == undefined)
+        return res.status(500).send('Failed to get tags');
+
+    res.send(tags);
+});
+
+router.get('/uuid/:uuid', async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const post = await getPostByUuid(uuid);
+    if (post == undefined)
+        return res.status(500).send('Failed to get post');
+
+    const sanitized = await sanitizePostObj(post);
     res.send(sanitized);
 });
 

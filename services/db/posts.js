@@ -1,12 +1,13 @@
 import db from './drizzle/drizzle.js';
 import {Posts, Tags} from './drizzle/schema.js';
-import {and, eq, or, desc} from 'drizzle-orm';
+import {and, eq, or, desc, like} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
+const DEFAULT_TAG_SEARCH_LIMIT = 30;
 
 /*
 Post Structure:
@@ -54,6 +55,7 @@ export async function sanitizePostObj(postObj) {
         return {
             post: await sanitizePost(postObj.post),
             signature: postObj.signature,
+            uuid: postObj.uuid,
             // publicKey: postObj.publicKey, -> Not required as it can be "derived" from userId
             userId: postObj.userId
         };
@@ -67,6 +69,7 @@ export async function sanitizePostObjArr(posts) {
     for (let post of posts) {
         const sanitizedPost = await sanitizePostObj(post);
         if (sanitizedPost !== undefined) {
+            // sanitizedPost.uuid = await cryptoUtils.signatureToUUIDHash(post.signature);
             sanitized.push(sanitizedPost);
         }
     }
@@ -240,7 +243,8 @@ export async function mapResultToPostObj(result) {
             createdAt: result.createdAt
         },
         signature: result.signature,
-        userId: result.userId
+        userId: result.userId,
+        uuid: result.uuid
     };
 }
 
@@ -346,6 +350,48 @@ export async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
         return posts;
     } catch (e) {
         console.error(`Failed to get user: ${e.message}`);
+        return [];
+    }
+}
+
+export async function getPostByUuid(uuid) {
+    try {
+        const res = await db.select()
+            .from(Posts)
+            .where(eq(Posts.uuid, uuid))
+            .limit(1);
+
+        if (res === undefined || res.length < 1)
+            return undefined;
+
+        const post = await mapResultToPostObj(res[0]);
+        return post;
+    } catch (e) {
+        console.error(`Failed to get post by uuid: ${e.message}`);
+        return undefined;
+    }
+}
+
+export async function getTagsStartingWith(tagStart) {
+    try {
+        const res = await db.selectDistinct({tag: Tags.tag})
+            .from(Tags)
+            .where(or(
+                eq(Tags.tag, tagStart),
+                // eq(Tags.tag, tagStart + "%")
+                like(Tags.tag, `${tagStart}%`),
+            ))
+            .limit(DEFAULT_TAG_SEARCH_LIMIT);
+
+        if (res === undefined || res.length < 1)
+            return [];
+
+        const tags = [];
+        for (let tag of res)
+            tags.push(tag.tag);
+        return tags;
+    } catch (e) {
+        console.error(`Failed to get tags: ${e.message}`);
         return [];
     }
 }
