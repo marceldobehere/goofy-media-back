@@ -1,6 +1,6 @@
 import db from './drizzle/drizzle.js';
 import {Posts, Tags} from './drizzle/schema.js';
-import {and, eq, or, desc, like} from 'drizzle-orm';
+import {and, eq, or, desc, like, sql} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
@@ -374,13 +374,18 @@ export async function getPostByUuid(uuid) {
 
 export async function getTagsStartingWith(tagStart) {
     try {
-        const res = await db.selectDistinct({tag: Tags.tag})
+        const count = sql`cast(count(${Tags.tag}) as int)`;
+        const res = await db.select({
+                tag: Tags.tag,
+                count: count
+            })
             .from(Tags)
             .where(or(
                 eq(Tags.tag, tagStart),
-                // eq(Tags.tag, tagStart + "%")
-                like(Tags.tag, `${tagStart}%`),
+                like(Tags.tag, `${tagStart}%`)
             ))
+            .groupBy(Tags.tag)
+            .orderBy(desc(count))
             .limit(DEFAULT_TAG_SEARCH_LIMIT);
 
         if (res === undefined || res.length < 1)
@@ -388,7 +393,7 @@ export async function getTagsStartingWith(tagStart) {
 
         const tags = [];
         for (let tag of res)
-            tags.push(tag.tag);
+            tags.push({tag:tag.tag, count:tag.count});
         return tags;
     } catch (e) {
         console.error(`Failed to get tags: ${e.message}`);
