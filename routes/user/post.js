@@ -70,9 +70,12 @@ router.get('/user/:user', async (req, res) => {
 });
 
 router.get('/tag/:tag', async (req, res) => {
-    const tag = req.params.tag;
+    let tag = req.params.tag;
     if (!tag)
         return res.status(400).send('Missing tag');
+    if (typeof tag !== "string")
+        return res.status(400).send('Tag is not a string');
+    tag = tag.toLowerCase();
 
     const {start, limit} = extractStartAndLimitFromHeaders(req.headers);
     const posts = await getPostsByTag(tag, limit, start);
@@ -84,9 +87,12 @@ router.get('/tag/:tag', async (req, res) => {
 });
 
 router.get('/tags/like/:tag', async (req, res) => {
-    const tag = req.params.tag;
+    let tag = req.params.tag;
     if (!tag)
         return res.status(400).send('Missing tag');
+    if (typeof tag !== "string")
+        return res.status(400).send('Tag is not a string');
+    tag = tag.toLowerCase();
 
     const tags = await getTagsStartingWith(tag);
     if (tags == undefined)

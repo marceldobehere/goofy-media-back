@@ -109,12 +109,20 @@ export async function verifyPost(postObj) {
         return "FUTURE DATE";
     }
 
+    // not sure yet, might switch to saving the index of the tag in the db and having the order saved
+    // post.tags = [...post.tags].sort();
     for (let tag of post.tags) {
         if (typeof tag !== 'string') {
             return "TAG NOT STRING";
         }
         if (tag.length > 100) {
             return "TAG TOO LONG";
+        }
+        if (tag !== tag.toLowerCase()) {
+            return "TAG CONTAINS UPPERCASE";
+        }
+        if (tag.includes("#")) {
+            return "TAG CONTAINS #";
         }
     }
 
