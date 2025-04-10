@@ -15,6 +15,8 @@ Requires the nodejs packages in the `package.json` file.
 
 Requires a `.env` file with the following variables:
 ```
+SERVER_URL="https://media.marceldobehere.com"
+CLIENT_URL="https://marceldobehere.github.io/goofy-media-front"
 TURSO_DATABASE_URL=file:./data/main.db
 ```
 

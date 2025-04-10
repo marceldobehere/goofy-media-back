@@ -35,7 +35,11 @@ export async function hashString(str) {
 }
 
 export async function signatureToUUIDHash(sig) {
-    let hash = await improvedPbkdf2(JSON.stringify(sig), "GoofyUserHash123", 8, 1234);
+    let hash = await improvedPbkdf2(JSON.stringify(sig), "GoofyUserHash123", 8, 789);
+    hash = hash.replaceAll("+", "a");
+    hash = hash.replaceAll("/", "b");
+    hash = hash.replaceAll("=", "c");
+    hash = hash.substring(0, 20); // ~120 bit index
     return hash;
 }
 

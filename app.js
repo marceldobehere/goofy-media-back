@@ -8,6 +8,7 @@ import indexRouter from './routes/index.js';
 import guestRouter from './routes/guest/guestRoutes.js';
 import userRouter from './routes/user/userRoutes.js';
 import adminRouter from './routes/admin/adminRoutes.js';
+import smolRouter from './routes/smol/smol.js';
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use('/', indexRouter);
 app.use('/guest', guestRouter);
 app.use('/user', userRouter);
 app.use('/admin', adminRouter);
+app.use('/smol', smolRouter);
 
 export default app;
