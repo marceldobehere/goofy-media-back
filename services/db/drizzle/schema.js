@@ -67,6 +67,34 @@ export const Tags = sqliteTable(
     (table) => [primaryKey({columns: [table.uuid, table.tag]})]
 );
 
+export const Comments = sqliteTable('comments', {
+    uuid: text().primaryKey().notNull(),
+    userId: text()
+        .references(() => RegisteredUsers.userId, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        })
+        .notNull(),
+    postUuid: text()
+        .references(() => Posts.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        })
+        .notNull(),
+    replyCommentUuid: text() // A comment can be a reply to another comment but does not have to be
+        .references(() => Comments.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+
+    text: text().notNull(),
+    createdAt: integer('createdAt')
+        .default(sql`(strftime('%s', 'now'))`)
+        .notNull(),
+
+    signature: text().notNull(),
+});
+
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),
 });

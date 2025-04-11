@@ -77,13 +77,13 @@ export async function sanitizePostObjArr(posts) {
 }
 
 export async function verifyPost(postObj) {
-    if (postObj === undefined) {
+    if (postObj === undefined || typeof postObj !== "object") {
         return "POST OBJ UNDEFINED";
     }
 
     // Verify Basic Post Structure
     const post = postObj.post;
-    if (post === undefined) {
+    if (post === undefined || typeof post !== "object") {
         return "POST UNDEFINED";
     }
 
@@ -167,7 +167,7 @@ export async function verifyPost(postObj) {
 
 export async function addPost(post, ignoreValid) {
     post = await sanitizePostObj(post);
-    if ((ignoreValid == undefined ) && ((await verifyPost(post)) !== "OK")) {
+    if ((ignoreValid == undefined) && ((await verifyPost(post)) !== "OK")) {
         return false;
     }
 

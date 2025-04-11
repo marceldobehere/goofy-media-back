@@ -6,6 +6,7 @@ import {getAllEncStorageEntries, importAllEncStorageEntries, resetEncStorageTabl
 import {getAllCodeEntries, importAllRegisterCodes, resetRegisterCodeTable} from "../../services/db/register.js";
 import {getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable} from "../../services/db/users.js";
 import {getAllPostEntries, importAllPosts, resetPostAndTagTables} from "../../services/db/posts.js";
+import {getAllCommentEntries, importAllComments, resetCommentTable} from "../../services/db/comments.js";
 
 
 async function getAllExportData() {
@@ -19,12 +20,15 @@ async function getAllExportData() {
     const registeredUsers = await getAllRegisteredUserEntries();
     console.log(" > Exporting Posts");
     const posts = await getAllPostEntries();
+    console.log(" > Exporting Comments");
+    const comments = await getAllCommentEntries();
 
     const res = {
         encStorage,
         registerCodes,
         registeredUsers,
-        posts
+        posts,
+        comments,
     };
 
     console.log("> Exported data: ", res);
@@ -36,6 +40,7 @@ async function importAllData(data) {
 
     // Delete Data
     console.log(" > Resetting tables");
+    await resetCommentTable()
     await resetPostAndTagTables();
     await resetRegisterCodeTable();
     await resetEncStorageTable();
@@ -61,6 +66,11 @@ async function importAllData(data) {
     const posts = data.posts;
     if (posts)
         await importAllPosts(posts, true);
+
+    console.log(" > Importing Comments");
+    const comments = data.comments;
+    if (comments)
+        await importAllComments(comments, true);
 
     console.log("> Imported data!");
     return true;
