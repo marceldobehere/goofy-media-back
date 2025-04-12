@@ -4,6 +4,7 @@ import {and, eq, or, desc, like, sql} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
+import {getAllCommentCountForPost} from "./comments.js";
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
@@ -56,6 +57,7 @@ export async function sanitizePostObj(postObj) {
             post: await sanitizePost(postObj.post),
             signature: postObj.signature,
             uuid: postObj.uuid,
+            commentCount: postObj.commentCount,
             // publicKey: postObj.publicKey, -> Not required as it can be "derived" from userId
             userId: postObj.userId
         };
@@ -242,6 +244,7 @@ export async function mapResultToPostObj(result) {
         return undefined;
 
     const tags = await getTagsFromPost(result.uuid);
+    const commentCount = await getAllCommentCountForPost(result.uuid);
 
     return {
         post: {
@@ -250,6 +253,7 @@ export async function mapResultToPostObj(result) {
             tags: tags,
             createdAt: result.createdAt
         },
+        commentCount: commentCount,
         signature: result.signature,
         userId: result.userId,
         uuid: result.uuid

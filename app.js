@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 
-
 import indexRouter from './routes/index.js';
 import guestRouter from './routes/guest/guestRoutes.js';
 import userRouter from './routes/user/userRoutes.js';

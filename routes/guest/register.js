@@ -1,8 +1,9 @@
 import express from 'express';
-import {authLockMiddleware, authRegisteredMiddleware} from '../authValidation.js';
+import {authLockMiddleware, authRandomGuestMiddleware, authRegisteredMiddleware} from '../authValidation.js';
 import * as registerCodes from '../../services/db/register.js';
 import {addRegisteredUser} from '../../services/db/users.js';
 import drizzler from '../../services/db/drizzle/drizzle.js';
+import {sendWHMessage} from "../../services/webhook.js";
 
 const router = express.Router();
 export default router;
@@ -61,6 +62,27 @@ router.post('/login-test', authRegisteredMiddleware, async (req, res) => {
     res.send('Login success');
 });
 
+router.post('/register-msg', authRandomGuestMiddleware, async (req, res) => {
+    const msg = req.body.msg;
+    if (typeof msg !== "string") {
+        res.status(400).send('Bad request');
+        return;
+    }
+
+    if (msg.length > 1000) {
+        res.status(400).send('Message too long');
+        return;
+    }
+
+    const userId = req.userId;
+
+    const result = await sendWHMessage(userId, msg);
+
+    if (result)
+        res.send('Message sent');
+    else
+        res.status(500).send('Failed to send message');
+});
 
 (async () => {
     await drizzler.promise;

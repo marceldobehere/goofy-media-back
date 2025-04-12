@@ -1,6 +1,6 @@
 import db from './drizzle/drizzle.js';
 import {Comments} from './drizzle/schema.js';
-import {and, eq, desc, isNull} from 'drizzle-orm';
+import {and, eq, desc, isNull, count} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
@@ -101,6 +101,7 @@ async function sanitizeComment(comment) {
                 replyCommentUuid: comment.comment.replyCommentUuid,
             },
             uuid: comment.uuid,
+            replyCount: comment.replyCount,
             userId: comment.userId,
             signature: comment.signature
         };
@@ -126,10 +127,13 @@ async function mapResultToCommentObj(res) {
     if (res.replyCommentUuid === null)
         res.replyCommentUuid = undefined;
 
+    const replyCount = await getReplyCountForComment(res.uuid);
+
     return {
         uuid: res.uuid,
         userId: res.userId,
         signature: res.signature,
+        replyCount: replyCount,
         comment: {
             text: res.text,
             postUuid: res.postUuid,
@@ -223,6 +227,42 @@ export async function getRepliesForComment(commentUuid, limit, start) {
     }
     return comments;
 }
+
+export async function getMainCommentCountForPost(postUuid) {
+    const res = await db.select({ count: count() })
+        .from(Comments)
+        .where(and(
+            eq(Comments.postUuid, postUuid),
+            isNull(Comments.replyCommentUuid)
+        ));
+
+    if (res === undefined || res.length < 1)
+        return 0;
+
+    return res[0].count;
+}
+export async function getAllCommentCountForPost(postUuid) {
+    const res = await db.select({ count: count() })
+        .from(Comments)
+        .where(eq(Comments.postUuid, postUuid));
+
+    if (res === undefined || res.length < 1)
+        return 0;
+
+    return res[0].count;
+}
+
+export async function getReplyCountForComment(commentUuid) {
+    const res = await db.select({ count: count() })
+        .from(Comments)
+        .where(eq(Comments.replyCommentUuid, commentUuid));
+
+    if (res === undefined || res.length < 1)
+        return 0;
+
+    return res[0].count;
+}
+
 
 
 export async function getAllCommentEntries() {

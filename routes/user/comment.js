@@ -8,7 +8,7 @@ import {authRegisteredMiddleware} from "../authValidation.js";
 import {
     addComment,
     getMainCommentsForPost,
-    getRepliesForComment,
+    getRepliesForComment, getReplyCountForComment,
     sanitizeCommentArr
 } from "../../services/db/comments.js";
 
@@ -78,6 +78,15 @@ router.get('/replies/:uuid', async (req, res) => {
 
     const sanitized = await sanitizeCommentArr(comments);
     res.send(sanitized);
+});
+
+router.get('/reply-count/:uuid', async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const comments = await getReplyCountForComment(uuid);
+    res.send({count: comments});
 });
 
 export default router;

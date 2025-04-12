@@ -139,11 +139,18 @@ export const authRegisteredMiddleware = async (req, res, next) => {
     });
 }
 
-export const authGuestMiddleware = async (req, res, next) => {
+export const authTrustedGuestMiddleware = async (req, res, next) => {
     await authMiddleware(req, res, async () => {
         const userId = req.userId;
         if (!await getTrustedGuestUser(userId) && !await getRegisteredUser(userId))
             return res.status(401).send("Non-Guest request unauthorized");
+        await next();
+    });
+}
+
+export const authRandomGuestMiddleware = async (req, res, next) => {
+    await authMiddleware(req, res, async () => {
+        const userId = req.userId;
         await next();
     });
 }
