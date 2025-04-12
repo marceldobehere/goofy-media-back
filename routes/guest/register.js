@@ -3,7 +3,7 @@ import {authLockMiddleware, authRandomGuestMiddleware, authRegisteredMiddleware}
 import * as registerCodes from '../../services/db/register.js';
 import {addRegisteredUser} from '../../services/db/users.js';
 import drizzler from '../../services/db/drizzle/drizzle.js';
-import {sendWHMessage} from "../../services/webhook.js";
+import {sendRegisterCodeRequest} from "../../services/webhook.js";
 
 const router = express.Router();
 export default router;
@@ -68,15 +68,13 @@ router.post('/register-msg', authRandomGuestMiddleware, async (req, res) => {
         res.status(400).send('Bad request');
         return;
     }
-
     if (msg.length > 1000) {
         res.status(400).send('Message too long');
         return;
     }
 
     const userId = req.userId;
-
-    const result = await sendWHMessage(userId, msg);
+    const result = await sendRegisterCodeRequest(userId, msg);
 
     if (result)
         res.send('Message sent');

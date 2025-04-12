@@ -5,6 +5,9 @@ import {
     getPostsByUsersAndTags, getPostByUuid, sanitizePostObj, getTagsStartingWith
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware} from "../authValidation.js";
+import {postPosted} from "../../services/webhook.js";
+import {getSmolPostUrl} from "../smol/smol.js";
+import * as cryptoUtils from "../../services/security/cryptoUtils.js";
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
     const body = req.body;
@@ -139,6 +142,9 @@ router.post('/', authRegisteredMiddleware, async (req, res) => {
         return res.status(500).send('Failed to add post');
 
     console.log(`> User ${req.userId} added post:`, post.post);
+
+    const uuid = await cryptoUtils.signatureToUUIDHash(post.signature);
+    await postPosted(req.userId, post.post.title, post.post.text, getSmolPostUrl(uuid))
     res.send('Post added');
 });
 

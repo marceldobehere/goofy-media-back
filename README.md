@@ -19,7 +19,11 @@ SERVER_URL="https://media.marceldobehere.com"
 CLIENT_URL="https://marceldobehere.github.io/goofy-media-front"
 TURSO_DATABASE_URL=file:./data/main.db
 REGISTER_DISCORD_WEBHOOK_URL="..."
+FEEDBACK_DISCORD_WEBHOOK_URL="..."
+POST_DISCORD_WEBHOOK_URL="..."
 ```
+
+The Discord Webhooks are optional but probably nice to have
 
 
 ### How to run
