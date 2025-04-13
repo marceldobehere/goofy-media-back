@@ -1,8 +1,19 @@
 import express from 'express';
 const router = express.Router();
 import {
-    getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
-    getPostsByUsersAndTags, getPostByUuid, sanitizePostObj, getTagsStartingWith, findAllValidMentionsInPostText
+    getAllPosts,
+    getPostsByUser,
+    getPostsByTag,
+    verifyPost,
+    addPost,
+    sanitizePostObjArr,
+    getPostsByUsers,
+    getPostsByUsersAndTags,
+    getPostByUuid,
+    sanitizePostObj,
+    getTagsStartingWith,
+    findAllValidMentionsInPostText,
+    getLikedPostsByUser
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware} from "../authValidation.js";
 import {postPosted} from "../../services/webhook.js";
@@ -68,6 +79,16 @@ router.get('/user/:user', async (req, res) => {
     const posts = await getPostsByUser(user, limit, start);
     if (posts == undefined)
         return res.status(500).send('Failed to get posts');
+
+    const sanitized = await sanitizePostObjArr(posts);
+    res.send(sanitized);
+});
+
+router.get('/likes', authRegisteredMiddleware, async (req, res) => {
+    const {start, limit} = extractStartAndLimitFromHeaders(req.headers);
+    const posts = await getLikedPostsByUser(req.userId, limit, start);
+    if (posts == undefined)
+        return res.status(500).send('Failed to get liked posts');
 
     const sanitized = await sanitizePostObjArr(posts);
     res.send(sanitized);

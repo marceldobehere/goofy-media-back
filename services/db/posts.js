@@ -1,11 +1,12 @@
 import db from './drizzle/drizzle.js';
 import {Posts, Tags} from './drizzle/schema.js';
-import {and, eq, or, desc, like, sql} from 'drizzle-orm';
+import {and, eq, or, desc, like, sql, ne} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
 import {getAllCommentCountForPost} from "./comments.js";
 import {getPublicKeyFromUserId} from "./users.js";
+import {getLikedPostUuids} from "./likes.js";
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
@@ -296,6 +297,30 @@ export async function getAllPosts(limit, start) {
     return res;
 }
 
+export async function getLikedPostsByUser(userId, limit, start) {
+    // console.log("> Getting liked posts for: ", userId)
+    const postUuids = await getLikedPostUuids(userId, limit, start);
+    // console.log(postUuids)
+
+    // apply filters
+    const goofyFilter = [];
+    for (let uuid of postUuids)
+        goofyFilter.push(eq(Posts.uuid, uuid));
+    goofyFilter.push(ne(Posts.uuid, Posts.uuid)); // in case there are no uuids
+
+    const res = await getWithFilters([or(...goofyFilter)], limit);
+
+    const actualRes = [];
+    for (let postUuid of postUuids)
+        for (let post of res)
+            if (post.uuid === postUuid) {
+                actualRes.push(post);
+                break;
+            }
+
+    return actualRes;
+}
+
 export async function getPostsByUser(userId, limit, start) {
     const res = await getWithFilters([eq(Posts.userId, userId)], limit, start);
     return res;
@@ -305,6 +330,7 @@ export async function getPostsByUsers(userIds, limit, start) {
     const filterArray = [];
     for (let userId of userIds)
         filterArray.push(eq(Posts.userId, userId));
+    filterArray.push(ne(Posts.userId, Posts.userId)); // in case there are no userIds
 
     const res = await getWithFilters(or(...filterArray), limit, start);
     return res;
@@ -327,11 +353,13 @@ export async function getPostsByTagsAndMaybeUsers(tags, users, limit, start) {
         const tagFilters = [];
         for (let tag of tags)
             tagFilters.push(eq(Tags.tag, tag));
+        tagFilters.push(ne(Tags.tag, Tags.tag)); // in case there are no tags
 
         const userFilters = [];
         if (users !== undefined)
             for (let user of users)
                 userFilters.push(eq(Posts.userId, user));
+        userFilters.push(ne(Posts.userId, Posts.userId)); // in case there are no userIds
 
         if (limit === undefined || typeof limit !== 'number' || limit < 1)
             limit = DEFAULT_LIMIT;

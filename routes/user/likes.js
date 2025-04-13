@@ -1,0 +1,58 @@
+import express from 'express';
+
+const router = express.Router();
+import {authRegisteredMiddleware} from "../authValidation.js";
+import {
+    addLikeNotification
+} from "../../services/db/notifications.js";
+import {addLike, isPostLiked, removeLike} from "../../services/db/likes.js";
+import {getUserIdFromPostUuid} from "../../services/db/posts.js";
+
+
+router.get('/post/:uuid', authRegisteredMiddleware, async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const liked = await isPostLiked(req.userId, uuid);
+    if (liked === undefined)
+        return res.status(500).send('Failed to get liked status');
+
+    res.send({liked});
+});
+
+router.post('/post', authRegisteredMiddleware, async (req, res) => {
+    const body = req.body;
+    if (!body)
+        return res.status(400).send('Missing body');
+    if (body.like == undefined)
+        return res.status(400).send('Missing like');
+
+    const like = body.like;
+    const result = await addLike(like);
+    if (!result)
+        return res.status(500).send('Failed to add like');
+
+    const uuid = like.postUuid;
+    const postUserId = await getUserIdFromPostUuid(uuid);
+    await addLikeNotification(postUserId, req.userId, uuid);
+
+    res.send('Post liked');
+});
+
+router.delete('/post/:uuid', authRegisteredMiddleware, async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const liked = await removeLike(req.userId, uuid);
+    if (liked === undefined)
+        return res.status(500).send('Failed to remove like');
+
+    if (!liked)
+        return res.status(400).send('Failed to remove like');
+    res.send('Like removed');
+});
+
+
+export default router;

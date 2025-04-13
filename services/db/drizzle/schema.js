@@ -147,6 +147,28 @@ export const Notifications = sqliteTable('notifications', {
         }),
 });
 
+export const Likes = sqliteTable('likes', {
+        userId: text()
+            .references(() => RegisteredUsers.userId, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            })
+            .notNull(),
+        postUuid: text()
+            .references(() => Posts.uuid, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            })
+            .notNull(),
+        likedAt: integer('createdAt')
+            .default(sql`(strftime('%s', 'now'))`)
+            .notNull(),
+        signature: text()
+            .notNull(),
+    },
+    (table) => [primaryKey({columns: [table.userId, table.postUuid]})]
+);
+
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),
 });
