@@ -26,7 +26,7 @@ export async function getAllFollowersForUser(userId, limit, start){
 
     let followers = [];
     for (let result of res)
-        followers.push(result.userId);
+        followers.push({userId: result.userId, followedAt: result.followedAt});
     return followers;
 }
 
