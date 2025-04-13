@@ -5,6 +5,7 @@ import * as cryptoUtils from '../security/cryptoUtils.js';
 import * as rsa from '../security/rsa.js';
 import * as users from './users.js';
 import {getAllCommentCountForPost} from "./comments.js";
+import {getPublicKeyFromUserId} from "./users.js";
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
@@ -384,6 +385,24 @@ export async function getPostByUuid(uuid) {
     }
 }
 
+export async function getUserIdFromPostUuid(uuid) {
+    try {
+        const res = await db.select()
+            .from(Posts)
+            .where(eq(Posts.uuid, uuid))
+            .limit(1);
+
+        if (res === undefined || res.length < 1)
+            return undefined;
+
+        return res[0].userId;
+    } catch (e) {
+        console.error(`Failed to get userId from post uuid: ${e.message}`);
+        return undefined;
+    }
+
+}
+
 export async function getTagsStartingWith(tagStart) {
     try {
         const count = sql`cast(count(${Tags.tag}) as int)`;
@@ -411,6 +430,38 @@ export async function getTagsStartingWith(tagStart) {
         console.error(`Failed to get tags: ${e.message}`);
         return [];
     }
+}
+
+export async function findAllValidMentionsInPostText(text) {
+    if (typeof text !== "string")
+        return [];
+
+    // raw mentions
+    const maybeMentions = [];
+    const parts = text.replaceAll('\n', " ").split(" ");
+    for (let part of parts)
+        if (part.startsWith("@") && part.length > 1)
+            maybeMentions.push(part.substring(1).trim());
+
+    // check which exist in db
+    const mentionPromises = [];
+    for (let mention of maybeMentions)
+        mentionPromises.push(async () => {
+            const pubKey = await getPublicKeyFromUserId(mention);
+            if (pubKey == undefined)
+                return undefined;
+            return mention;
+        });
+
+    // save them
+    const actualMentions = [];
+    for (let prom of mentionPromises) {
+        const res = await prom();
+        if (res && !actualMentions.includes(res))
+            actualMentions.push(res);
+    }
+
+    return actualMentions;
 }
 
 export async function getAllPostEntries() {

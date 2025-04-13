@@ -2,12 +2,13 @@ import express from 'express';
 const router = express.Router();
 import {
     getAllPosts, getPostsByUser, getPostsByTag, verifyPost, addPost, sanitizePostObjArr, getPostsByUsers,
-    getPostsByUsersAndTags, getPostByUuid, sanitizePostObj, getTagsStartingWith
+    getPostsByUsersAndTags, getPostByUuid, sanitizePostObj, getTagsStartingWith, findAllValidMentionsInPostText
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware} from "../authValidation.js";
 import {postPosted} from "../../services/webhook.js";
 import {getSmolPostUrl} from "../smol/smol.js";
 import * as cryptoUtils from "../../services/security/cryptoUtils.js";
+import {addMentionNotification} from "../../services/db/notifications.js";
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
     const body = req.body;
@@ -145,6 +146,15 @@ router.post('/', authRegisteredMiddleware, async (req, res) => {
 
     const uuid = await cryptoUtils.signatureToUUIDHash(post.signature);
     await postPosted(req.userId, post.post.title, post.post.text, getSmolPostUrl(uuid))
+
+    try {
+        const mentions = await findAllValidMentionsInPostText(post.post.text);
+        for (let mention of mentions)
+            await addMentionNotification(mention, req.userId, uuid);
+    } catch (e) {
+        console.error(`> Sending Mention Notifications failed: `, e, post)
+    }
+
     res.send('Post added');
 });
 

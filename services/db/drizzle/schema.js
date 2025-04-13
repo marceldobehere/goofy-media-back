@@ -95,6 +95,58 @@ export const Comments = sqliteTable('comments', {
     signature: text().notNull(),
 });
 
+/*
+Notification Types:
+* Someone follows you [userId, followerUserId]
+* Someone likes your post [userId, likerUserId, postUuid]
+* Someone comments on your post [userId, commenterUserId, postUuid]
+* Someone replies to your comment [userId, replierUserId, postUuid, replyCommentUuid]
+* Someone shares your post [userId, sharerUserId, postUuid]
+* Someone mentions you in a post [userId, mentionerUserId, postUuid]
+*/
+
+export const Notifications = sqliteTable('notifications', {
+    uuid: text()
+        .primaryKey()
+        .notNull(),
+    userId: text()
+        .references(() => RegisteredUsers.userId, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        })
+        .notNull(),
+    notificationType: text()
+        .notNull(), // follow, like, comment, reply, mention, share
+    createdAt: integer('createdAt')
+        .default(sql`(strftime('%s', 'now'))`)
+        .notNull(),
+    isRead: integer({mode: 'boolean'})
+        .notNull()
+        .default(false),
+
+
+    otherUserId: text()
+        .references(() => RegisteredUsers.userId, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    postUuid: text()
+        .references(() => Posts.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    commentUuid: text()
+        .references(() => Comments.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    commentResponseUuid: text()
+        .references(() => Comments.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+});
+
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),
 });

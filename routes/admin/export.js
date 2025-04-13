@@ -7,6 +7,11 @@ import {getAllCodeEntries, importAllRegisterCodes, resetRegisterCodeTable} from 
 import {getAllRegisteredUserEntries, importAllRegisteredUsers, resetUserTable} from "../../services/db/users.js";
 import {getAllPostEntries, importAllPosts, resetPostAndTagTables} from "../../services/db/posts.js";
 import {getAllCommentEntries, importAllComments, resetCommentTable} from "../../services/db/comments.js";
+import {
+    getAllNotificationEntries,
+    importAllNotifications,
+    resetNotificationTable
+} from "../../services/db/notifications.js";
 
 
 async function getAllExportData() {
@@ -22,6 +27,8 @@ async function getAllExportData() {
     const posts = await getAllPostEntries();
     console.log(" > Exporting Comments");
     const comments = await getAllCommentEntries();
+    console.log("> Exporting Notifications")
+    const notifications = await getAllNotificationEntries();
 
     const res = {
         encStorage,
@@ -29,6 +36,7 @@ async function getAllExportData() {
         registeredUsers,
         posts,
         comments,
+        notifications
     };
 
     console.log("> Exported data: ", res);
@@ -40,6 +48,7 @@ async function importAllData(data) {
 
     // Delete Data
     console.log(" > Resetting tables");
+    await resetNotificationTable();
     await resetCommentTable()
     await resetPostAndTagTables();
     await resetRegisterCodeTable();
@@ -71,6 +80,11 @@ async function importAllData(data) {
     const comments = data.comments;
     if (comments)
         await importAllComments(comments, true);
+
+    console.log(" > Importing Notifications");
+    const notifications = data.notifications;
+    if (notifications)
+        await importAllNotifications(notifications);
 
     console.log("> Imported data!");
     return true;

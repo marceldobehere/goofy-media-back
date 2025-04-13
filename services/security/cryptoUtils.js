@@ -43,6 +43,20 @@ export async function signatureToUUIDHash(sig) {
     return hash;
 }
 
+export async function getRandomStr(len) {
+    if (len == undefined)
+        len = 40;
+    if (len % 2 !== 0)
+        len++;
+
+    return crypto.randomBytes(len / 2).toString("hex");
+}
+
+export async function getRandomUUIDHash(len) {
+    const str = await getRandomStr(len);
+    return await signatureToUUIDHash(str);
+}
+
 // old pbkdf2 using CryptoJS (slow)
 async function oldPbkdf2(str, salt, keySize, iterations) {
     let hash = CryptoJS.PBKDF2(str, salt, {keySize: keySize, iterations: iterations});

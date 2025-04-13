@@ -15,6 +15,20 @@
       "when": 1744324956329,
       "tag": "0001_sparkling_roughhouse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1744493313295,
+      "tag": "0002_smart_landau",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1744502814779,
+      "tag": "0003_worried_blazing_skull",
+      "breakpoints": true
     }
   ]
 }

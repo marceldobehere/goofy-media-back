@@ -110,6 +110,17 @@ async function sanitizeComment(comment) {
     }
 }
 
+export async function getUserIdFromCommentUuid(uuid) {
+    const res = await db.select()
+        .from(Comments)
+        .where(eq(Comments.uuid, uuid));
+
+    if (res === undefined || res.length < 1)
+        return undefined;
+
+    return res[0].userId;
+}
+
 export async function sanitizeCommentArr(comments) {
     let sanitized = [];
     for (let i = 0; i < comments.length; i++) {
@@ -199,6 +210,17 @@ export async function getMainCommentsForPost(postUuid, limit, start) {
             comments.push(comment);
     }
     return comments;
+}
+
+export async function getCommentByUuid(uuid) {
+    const res = await db.select()
+        .from(Comments)
+        .where(eq(Comments.uuid, uuid));
+
+    if (res === undefined || res.length < 1)
+        return undefined;
+
+    return await mapResultToCommentObj(res[0]);
 }
 
 export async function getRepliesForComment(commentUuid, limit, start) {

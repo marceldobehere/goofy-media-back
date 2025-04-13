@@ -27,7 +27,7 @@ export async function addNewRegisterCode(admin) {
 }
 
 function convertResultToCodeObj(result) {
-    console.log("> ConvertResultToCodeObj: ", result);
+    // console.log("> ConvertResultToCodeObj: ", result);
     if (result == undefined)
         return undefined;
 
