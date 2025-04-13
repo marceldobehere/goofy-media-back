@@ -13,7 +13,7 @@ import {
     sanitizePostObj,
     getTagsStartingWith,
     findAllValidMentionsInPostText,
-    getLikedPostsByUser
+    getLikedPostsByUser, getFollowingPostsByUser
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware} from "../authValidation.js";
 import {postPosted} from "../../services/webhook.js";
@@ -89,6 +89,16 @@ router.get('/likes', authRegisteredMiddleware, async (req, res) => {
     const posts = await getLikedPostsByUser(req.userId, limit, start);
     if (posts == undefined)
         return res.status(500).send('Failed to get liked posts');
+
+    const sanitized = await sanitizePostObjArr(posts);
+    res.send(sanitized);
+});
+
+router.get('/following', authRegisteredMiddleware, async (req, res) => {
+    const {start, limit} = extractStartAndLimitFromHeaders(req.headers);
+    const posts = await getFollowingPostsByUser(req.userId, limit, start);
+    if (posts == undefined)
+        return res.status(500).send('Failed to get following posts');
 
     const sanitized = await sanitizePostObjArr(posts);
     res.send(sanitized);

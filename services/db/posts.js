@@ -7,6 +7,7 @@ import * as users from './users.js';
 import {getAllCommentCountForPost} from "./comments.js";
 import {getPublicKeyFromUserId} from "./users.js";
 import {getLikedPostUuids} from "./likes.js";
+import {getAllFollowingForUser} from "./follows.js";
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_START = 0;
@@ -310,6 +311,7 @@ export async function getLikedPostsByUser(userId, limit, start) {
 
     const res = await getWithFilters([or(...goofyFilter)], limit);
 
+    // Unsure if I still need this lol
     const actualRes = [];
     for (let postUuid of postUuids)
         for (let post of res)
@@ -319,6 +321,21 @@ export async function getLikedPostsByUser(userId, limit, start) {
             }
 
     return actualRes;
+}
+
+export async function getFollowingPostsByUser(userId, limit, start) {
+    // console.log("> Getting following posts for: ", userId)
+    const userIds = await getAllFollowingForUser(userId);
+    // console.log(postUuids)
+
+    // apply filters
+    const goofyFilter = [];
+    for (let uId of userIds)
+        goofyFilter.push(eq(Posts.userId, uId));
+    goofyFilter.push(ne(Posts.uuid, Posts.uuid)); // in case there are no uuids
+
+    const res = await getWithFilters([or(...goofyFilter)], limit, start);
+    return res;
 }
 
 export async function getPostsByUser(userId, limit, start) {

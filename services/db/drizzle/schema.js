@@ -169,6 +169,28 @@ export const Likes = sqliteTable('likes', {
     (table) => [primaryKey({columns: [table.userId, table.postUuid]})]
 );
 
+export const Follows = sqliteTable('follows', {
+        userId: text()
+            .references(() => RegisteredUsers.userId, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            })
+            .notNull(),
+        followingUserId: text()
+            .references(() => RegisteredUsers.userId, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            })
+            .notNull(),
+        followedAt: integer('createdAt')
+            .default(sql`(strftime('%s', 'now'))`)
+            .notNull(),
+        signature: text()
+            .notNull(),
+    },
+    (table) => [primaryKey({columns: [table.userId, table.followingUserId]})]
+);
+
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),
 });
