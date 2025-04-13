@@ -329,7 +329,7 @@ export async function getFollowingPostsByUser(userId, limit, start) {
     // console.log(postUuids)
 
     // apply filters
-    const goofyFilter = [];
+    const goofyFilter = [eq(Posts.userId, userId)]; // show posts from the user too
     for (let uId of userIds)
         goofyFilter.push(eq(Posts.userId, uId));
     goofyFilter.push(ne(Posts.uuid, Posts.uuid)); // in case there are no uuids
