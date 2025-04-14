@@ -78,7 +78,7 @@ function parseHeaders(headers) {
         return {id: null, signature: null, validUntil: null, publicKey: null};
     }
 
-    return {id, signature, validUntil, publicKey: decodeURIComponent(publicKey)};
+    return {id, signature: decodeURIComponent(signature), validUntil, publicKey: decodeURIComponent(publicKey)};
 }
 
 const authLocks = new Map();
