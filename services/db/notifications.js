@@ -90,6 +90,9 @@ async function verifyNotificationObj(notification) {
 }
 
 export async function addFollowNotification(userId, followerUserId) {
+    if (userId == followerUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "follow",
@@ -101,6 +104,9 @@ export async function addFollowNotification(userId, followerUserId) {
 }
 
 export async function addLikeNotification(userId, likerUserId, postUuid) {
+    if (userId == likerUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "like",
@@ -113,6 +119,9 @@ export async function addLikeNotification(userId, likerUserId, postUuid) {
 }
 
 export async function addCommentNotification(userId, commenterUserId, postUuid, commentResponseUuid) {
+    if (userId == commenterUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "comment",
@@ -126,6 +135,9 @@ export async function addCommentNotification(userId, commenterUserId, postUuid, 
 }
 
 export async function addReplyNotification(userId, replierUserId, postUuid, replyCommentUuid, commentResponseUuid) {
+    if (userId == replierUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "reply",
@@ -140,6 +152,9 @@ export async function addReplyNotification(userId, replierUserId, postUuid, repl
 }
 
 export async function addShareNotification(userId, sharerUserId, postUuid) {
+    if (userId == sharerUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "share",
@@ -152,6 +167,9 @@ export async function addShareNotification(userId, sharerUserId, postUuid) {
 }
 
 export async function addMentionNotification(userId, mentionerUserId, postUuid) {
+    if (userId == mentionerUserId)
+        return;
+
     const notification = {
         userId: userId,
         type: "mention",
