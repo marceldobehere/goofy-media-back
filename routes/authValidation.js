@@ -39,27 +39,26 @@ async function verifyRequest(body, signature, id, validUntil, publicKey) {
     // console.log(" > Obj: ", {body, id, validUntil})
     // console.log(" > Hash: ", hash)
 
-    const encrypt = new JSEncrypt();
-    encrypt.setPublicKey(publicKey);
-
-    let verified = encrypt.verify(hash, signature, CryptoJS.SHA256);
-
-    // check if id already exists
-
-    // check if validUntil is in the future
-    if (validUntil < Date.now() + 5000)
-        verified = false;
+    // check if validUntil expired
+    if (validUntil + 5000 < Date.now())
+        return `VALID UNTIL EXPIRED! ${(new Date(validUntil)).toISOString()} < ${new Date(Date.now() + 5000).toISOString()}`;
 
     // but check if its not too much in the future
     if (validUntil > Date.now() + msExtra)
-        verified = false;
+        return `VALID UNTIL TOO FAR IN THE FUTURE! ${(new Date(validUntil)).toISOString()} > ${new Date(Date.now() + msExtra).toISOString()}`;
+
+    const encrypt = new JSEncrypt();
+    encrypt.setPublicKey(publicKey);
+
+    if (!encrypt.verify(hash, signature, CryptoJS.SHA256))
+        return `SIGNATURE INVALID! Server Hash: ${hash}, Signature: ${signature}, Public Key: ${publicKey}`;
 
     // check id list
     let idCheck = checkId(publicKey, id, validUntil);
     if (!idCheck)
-        verified = false;
+        return `ID ${id} ALREADY USED! Potentially a RNG collision?`;
 
-    return verified;
+    return "OK";
 }
 
 function parseHeaders(headers) {
@@ -91,15 +90,17 @@ export const authMiddleware = async (req, res, next) => {
     if (req.body == undefined)
         req.body = {};
 
-    // console.log("> Parsed: ")
-    // console.log(" > id: ", id)
-    // console.log(" > signature: ", signature)
-    // console.log(" > validUntil: ", validUntil)
-    // console.log(" > publicKey: ", publicKey)
-    // console.log(" > Body: ", req.body)
+
     let verified = await verifyRequest(req.body, signature, id, validUntil, publicKey);
-    if (!verified)
-        return res.status(401).send("Signature verification failed");
+    if (verified != "OK") {
+        console.log("> Signature verification failed! Parsed Data: ")
+        console.log(" > id: ", id)
+        console.log(" > signature: ", signature)
+        console.log(" > validUntil: ", validUntil)
+        console.log(" > publicKey: ", publicKey)
+        console.log(" > Body: ", req.body)
+        return res.status(401).send(`Signature verification failed: ${verified}`);
+    }
 
     req.publicKey = publicKey;
     req.userId = await userHash(publicKey);
