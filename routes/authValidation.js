@@ -13,8 +13,14 @@ function checkId(publicKey, id, validUntil) {
     // console.log(" > Checking id: ", id, publicKey, validUntil)
     // console.log(" > List: ", idList)
     const now = Date.now();
-    if (validUntil < now + 5000 || validUntil > now + msExtra)
-        return false;
+
+    // check if validUntil expired
+    if (validUntil + 5000 < now)
+        return `VALID UNTIL EXPIRED! ${(new Date(validUntil)).toISOString()} < ${new Date(Date.now() + 5000).toISOString()}`;
+
+    // but check if its not too much in the future
+    if (validUntil > now + msExtra)
+        return `VALID UNTIL TOO FAR IN THE FUTURE! ${(new Date(validUntil)).toISOString()} > ${new Date(Date.now() + msExtra).toISOString()}`;
 
     // clear list of old entries
     idList = idList.filter(x => x.validUntil > now && x.validUntil < now + msExtra);
@@ -22,11 +28,11 @@ function checkId(publicKey, id, validUntil) {
     // check if id already exists
     let found = idList.filter(x => x.id === id && x.publicKey === publicKey).length > 0;
     if (found)
-        return false;
+        return "ID ALREADY USED! Maybe a replay or RNG collision?";
 
     // add id to list
     idList.push({id, publicKey, validUntil});
-    return true;
+    return "OK";
 }
 
 async function getHashFromObj(obj) {
@@ -55,8 +61,8 @@ async function verifyRequest(body, signature, id, validUntil, publicKey) {
 
     // check id list
     let idCheck = checkId(publicKey, id, validUntil);
-    if (!idCheck)
-        return `ID ${id} ALREADY USED! Potentially a RNG collision?`;
+    if (idCheck != "OK")
+        return `ID CHECK FOR ${id} Failed: ${idCheck}`;
 
     return "OK";
 }
