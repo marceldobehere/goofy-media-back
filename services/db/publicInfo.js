@@ -173,9 +173,9 @@ export async function addPublicInfo(publicInfo) {
             profilePronouns: publicInfo.profilePronouns,
             profileLinks: publicInfo.profileLinks,
             profileCustomCSS: publicInfo.profileCustomCSS,
-            profilePictureUrl: publicInfo.profilePictureUrl,
-            profileBannerUrl: publicInfo.profileBannerUrl,
-            pinnedPostUuid: publicInfo.pinnedPostUuid,
+            profilePictureUrl: publicInfo.profilePictureUrl || null,
+            profileBannerUrl: publicInfo.profileBannerUrl || null,
+            pinnedPostUuid: publicInfo.pinnedPostUuid || null,
             updatedAt: publicInfo.updatedAt,
             signature: publicInfo.signature
         };
