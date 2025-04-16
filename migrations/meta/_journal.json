@@ -43,6 +43,13 @@
       "when": 1744569900730,
       "tag": "0005_workable_luke_cage",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1744831646863,
+      "tag": "0006_great_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

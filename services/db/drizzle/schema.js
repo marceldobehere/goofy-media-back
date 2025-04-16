@@ -191,6 +191,38 @@ export const Follows = sqliteTable('follows', {
     (table) => [primaryKey({columns: [table.userId, table.followingUserId]})]
 );
 
+export const PublicUserInfo = sqliteTable('publicUserInfo', {
+    userId: text()
+        .references(() => RegisteredUsers.userId, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        })
+        .primaryKey()
+        .notNull(),
+    displayName: text()
+        .notNull(),
+    profileBio: text()
+        .notNull(),
+    profilePronouns: text()
+        .notNull(),
+    profileLinks: text()
+        .notNull(),
+    profileCustomCSS: text()
+        .notNull(),
+    profilePictureUrl: text(),
+    profileBannerUrl: text(),
+    pinnedPostUuid: text()
+        .references(() => Posts.uuid, {
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
+        }),
+    updatedAt: integer('updatedAt')
+        .default(sql`(strftime('%s', 'now'))`)
+        .notNull(),
+    signature: text()
+        .notNull(),
+});
+
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),
 });

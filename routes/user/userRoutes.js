@@ -10,6 +10,7 @@ import notificationsRouter from './notifications.js';
 import likesRouter from './likes.js';
 import followsRouter from './follows.js';
 import uploadRouter from './upload.js';
+import publicInfoRouter from './publicInfo.js';
 
 router.use('/verify', verifyRouter);
 router.use('/test', testRouter);
@@ -20,5 +21,6 @@ router.use('/notifications', notificationsRouter);
 router.use('/likes', likesRouter);
 router.use('/follows', followsRouter);
 router.use('/upload', uploadRouter);
+router.use('/public-info', publicInfoRouter);
 
 export default router;

@@ -14,6 +14,7 @@ import {
 } from "../../services/db/notifications.js";
 import {getAllLikeEntries, importAllLikes, resetLikeTable} from "../../services/db/likes.js";
 import {getAllFollowEntries, importAllFollows, resetFollowTable} from "../../services/db/follows.js";
+import {getAllPublicInfoEntries, importAllPublicInfos, resetPublicInfoTable} from "../../services/db/publicInfo.js";
 
 
 async function getAllExportData() {
@@ -35,6 +36,8 @@ async function getAllExportData() {
     const likes = await getAllLikeEntries();
     console.log(" > Exporting Follows");
     const follows = await getAllFollowEntries();
+    console.log(" > Exporting Public Info");
+    const publicInfo = await getAllPublicInfoEntries();
 
     const res = {
         encStorage,
@@ -44,7 +47,8 @@ async function getAllExportData() {
         comments,
         notifications,
         likes,
-        follows
+        follows,
+        publicInfo
     };
 
     console.log("> Exported data: ", res);
@@ -56,6 +60,7 @@ async function importAllData(data) {
 
     // Delete Data
     console.log(" > Resetting tables");
+    await resetPublicInfoTable();
     await resetFollowTable();
     await resetLikeTable();
     await resetNotificationTable();
@@ -105,6 +110,11 @@ async function importAllData(data) {
     const follows = data.follows;
     if (follows)
         await importAllFollows(follows);
+
+    console.log(" > Importing Public Info");
+    const publicInfo = data.publicInfo;
+    if (publicInfo)
+        await importAllPublicInfos(publicInfo);
 
     console.log("> Imported data!");
     return true;
