@@ -72,6 +72,7 @@ function parseHeaders(headers) {
     let signature = headers['x-goofy-signature']
     let validUntil = headers['x-goofy-valid-until']
     let publicKey = headers['x-goofy-public-key']
+    let raw = headers['x-goofy-raw'] == "true"
 
     if (id === undefined || signature === undefined || validUntil === undefined || publicKey === undefined)
         return {id: null, signature: null, validUntil: null, publicKey: null};
@@ -83,13 +84,13 @@ function parseHeaders(headers) {
         return {id: null, signature: null, validUntil: null, publicKey: null};
     }
 
-    return {id, signature: decodeURIComponent(signature), validUntil, publicKey: decodeURIComponent(publicKey)};
+    return {id, signature: decodeURIComponent(signature), validUntil, publicKey: decodeURIComponent(publicKey), raw: raw};
 }
 
 const authLocks = new Map();
 
 export const authMiddleware = async (req, res, next) => {
-    let {id, signature, validUntil, publicKey} = parseHeaders(req.headers);
+    let {id, signature, validUntil, publicKey, raw} = parseHeaders(req.headers);
     if (id === null)
         return res.status(400).send("Unsigned request unauthorized");
 
@@ -97,14 +98,16 @@ export const authMiddleware = async (req, res, next) => {
         req.body = {};
 
 
-    let verified = await verifyRequest(req.body, signature, id, validUntil, publicKey);
+    let verified = await verifyRequest(raw ? "FILE" : req.body, signature, id, validUntil, publicKey);
     if (verified != "OK") {
         console.log("> Signature verification failed! Parsed Data: ")
         console.log(" > id: ", id)
         console.log(" > signature: ", signature)
         console.log(" > validUntil: ", validUntil)
         console.log(" > publicKey: ", publicKey)
+        console.log(" > Raw: ", raw)
         console.log(" > Body: ", req.body)
+        console.log(" > Verified: ", verified)
         return res.status(401).send(`Signature verification failed: ${verified}`);
     }
 

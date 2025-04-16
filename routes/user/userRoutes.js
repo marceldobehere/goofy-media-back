@@ -9,6 +9,7 @@ import commentRouter from './comment.js';
 import notificationsRouter from './notifications.js';
 import likesRouter from './likes.js';
 import followsRouter from './follows.js';
+import uploadRouter from './upload.js';
 
 router.use('/verify', verifyRouter);
 router.use('/test', testRouter);
@@ -18,5 +19,6 @@ router.use('/comment', commentRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/likes', likesRouter);
 router.use('/follows', followsRouter);
+router.use('/upload', uploadRouter);
 
 export default router;
