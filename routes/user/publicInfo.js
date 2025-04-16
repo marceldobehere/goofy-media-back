@@ -12,7 +12,7 @@ router.get('/user/:uuid', async (req, res) => {
 
     const publicInfo = await getPublicInfo(uuid);
     if (publicInfo === undefined)
-        return res.status(500).send('Failed to get public info / User does not have public info');
+        return res.status(400).send('Failed to get public info / User does not have public info');
 
     res.send(publicInfo);
 });
