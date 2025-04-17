@@ -1,6 +1,6 @@
 import db from './drizzle/drizzle.js';
-import {RegisteredUsers} from './drizzle/schema.js';
-import {and, count, eq} from 'drizzle-orm';
+import {PublicUserInfo, RegisteredUsers} from './drizzle/schema.js';
+import {eq, like, or} from 'drizzle-orm';
 
 export async function addRegisteredUser(userId, publicKey, data) {
     if (await getRegisteredUser(userId) !== undefined) {
@@ -127,4 +127,73 @@ export async function getPublicKeyFromUserId(userId) {
     // Ask other servers in trusted network
 
     return undefined;
+}
+
+const USER_SEARCH_LIMIT = 20;
+
+export async function getUserIdsStartingWithUserId(userId) {
+    try {
+        const res = await db.select({
+            userId: RegisteredUsers.userId,
+        })
+            .from(RegisteredUsers)
+            .where(or(
+                eq(RegisteredUsers.userId, userId),
+                like(RegisteredUsers.userId, `${userId}%`)
+            ))
+            .limit(USER_SEARCH_LIMIT);
+
+        if (res === undefined || res.length < 1)
+            return [];
+
+        const users = [];
+        for (let user of res)
+            users.push(user.userId);
+        return users;
+    } catch (e) {
+        console.error(`Failed to get user IDs by id: ${e.message}`);
+        return [];
+    }
+}
+
+export async function getUserIdsStartingWithUsername(username) {
+    // need to join with public info to get the display name
+    try {
+        const res = await db.select({
+            userId: RegisteredUsers.userId
+        })
+            .from(RegisteredUsers)
+            .leftJoin(PublicUserInfo, eq(PublicUserInfo.userId, RegisteredUsers.userId))
+            .where(or(
+                eq(PublicUserInfo.displayName, username),
+                like(PublicUserInfo.displayName, `${username}%`)
+            ))
+            .limit(USER_SEARCH_LIMIT);
+
+        if (res === undefined || res.length < 1)
+            return [];
+
+        const users = [];
+        for (let user of res)
+            users.push(user.userId);
+        return users;
+    } catch (e) {
+        console.error(`Failed to get user IDs by name: ${e.message}`);
+        return [];
+    }
+}
+
+
+export async function getUserIdsStartingWithName(name) {
+    const p1 = getUserIdsStartingWithUsername(name);
+    const p2 = getUserIdsStartingWithUserId(name);
+
+    const [users1, users2] = await Promise.all([p1, p2]);
+    const users = [];
+    for (let user of users1)
+        users.push(user);
+    for (let user of users2)
+        if (!users.includes(user))
+            users.push(user);
+    return users;
 }

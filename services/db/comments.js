@@ -223,6 +223,23 @@ export async function getCommentByUuid(uuid) {
     return await mapResultToCommentObj(res[0]);
 }
 
+
+export async function deleteCommentByUuid(uuid) {
+    try {
+        const res = await db.delete(Comments)
+            .where(eq(Comments.uuid, uuid));
+
+        if (res === undefined || res.rowsAffected < 1)
+            return false;
+
+        return true;
+    } catch (e) {
+        console.error(`Failed to delete comment: ${e.message}`);
+        console.error(e);
+        return false;
+    }
+}
+
 export async function getRepliesForComment(commentUuid, limit, start) {
     if (limit === undefined || typeof limit !== 'number' || limit < 1)
         limit = DEFAULT_LIMIT;

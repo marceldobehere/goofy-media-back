@@ -13,9 +13,9 @@ import {
     sanitizePostObj,
     getTagsStartingWith,
     findAllValidMentionsInPostText,
-    getLikedPostsByUser, getFollowingPostsByUser
+    getLikedPostsByUser, getFollowingPostsByUser, deletePostByUuid
 } from "../../services/db/posts.js";
-import {authRegisteredMiddleware} from "../authValidation.js";
+import {authRegisteredMiddleware, isUserAdmin} from "../authValidation.js";
 import {postPosted} from "../../services/webhook.js";
 import {getSmolPostUrl} from "../smol/smol.js";
 import * as cryptoUtils from "../../services/security/cryptoUtils.js";
@@ -148,6 +148,28 @@ router.get('/uuid/:uuid', async (req, res) => {
     const sanitized = await sanitizePostObj(post);
     res.send(sanitized);
 });
+
+router.delete('/uuid/:uuid', authRegisteredMiddleware, async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const post = await getPostByUuid(uuid);
+    if (post == undefined)
+        return res.status(500).send('Failed to get post');
+
+    if ((post.userId !== req.userId) && !(await isUserAdmin(req.userId)))
+        return res.status(403).send('You are not allowed to delete this post');
+
+    const result = await deletePostByUuid(uuid);
+    if (!result)
+        return res.status(500).send('Failed to delete post');
+
+    console.log(`> User ${req.userId} deleted post:`, uuid);
+
+    res.send('Post deleted');
+});
+
 
 const NEWS_USER_IDS = ["mechs_relos868", "holts_plesh_boaty798", "sorer_bull_donko201"];
 const NEWS_TAGS = ["news"];

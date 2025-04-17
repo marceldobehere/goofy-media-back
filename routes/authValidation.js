@@ -8,6 +8,7 @@ import {getRegisteredUser, getTrustedGuestUser} from "../services/db/users.js";
 // check if id exists with public key
 let idList = [];
 const msExtra = 1000 * 30;
+const msLess = 1000 * 8;
 
 function checkId(publicKey, id, validUntil) {
     // console.log(" > Checking id: ", id, publicKey, validUntil)
@@ -15,8 +16,8 @@ function checkId(publicKey, id, validUntil) {
     const now = Date.now();
 
     // check if validUntil expired
-    if (validUntil + 5000 < now)
-        return `VALID UNTIL EXPIRED! ${(new Date(validUntil)).toISOString()} < ${new Date(Date.now() + 5000).toISOString()}`;
+    if (validUntil + msLess < now)
+        return `VALID UNTIL EXPIRED 2! ${(new Date(validUntil)).toISOString() + msLess} < ${new Date(Date.now()).toISOString()}`;
 
     // but check if its not too much in the future
     if (validUntil > now + msExtra)
@@ -46,8 +47,8 @@ async function verifyRequest(body, signature, id, validUntil, publicKey) {
     // console.log(" > Hash: ", hash)
 
     // check if validUntil expired
-    if (validUntil + 5000 < Date.now())
-        return `VALID UNTIL EXPIRED! ${(new Date(validUntil)).toISOString()} < ${new Date(Date.now() + 5000).toISOString()}`;
+    if (validUntil + msLess < Date.now())
+        return `VALID UNTIL EXPIRED 1! ${(new Date(validUntil + msLess)).toISOString()} < ${new Date(Date.now()).toISOString()}`;
 
     // but check if its not too much in the future
     if (validUntil > Date.now() + msExtra)
@@ -163,6 +164,18 @@ export const authRandomGuestMiddleware = async (req, res, next) => {
         const userId = req.userId;
         await next();
     });
+}
+
+export async function isUserAdmin(userId) {
+    const user = await getRegisteredUser(userId);
+    if (user === undefined)
+        return false;
+
+    const data = user.data;
+    if (data === undefined)
+        return false;
+
+    return data.admin;
 }
 
 export const authAdminMiddleware = async (req, res, next) => {

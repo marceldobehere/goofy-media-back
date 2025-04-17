@@ -211,11 +211,11 @@ export const PublicUserInfo = sqliteTable('publicUserInfo', {
         .notNull(),
     profilePictureUrl: text(),
     profileBannerUrl: text(),
-    pinnedPostUuid: text()
-        .references(() => Posts.uuid, {
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-        }),
+    pinnedPostUuid: text(),
+        // .references(() => Posts.uuid, {
+        //     onDelete: 'set null',
+        //     onUpdate: 'cascade',
+        // }),
     updatedAt: integer('updatedAt')
         .default(sql`(strftime('%s', 'now'))`)
         .notNull(),

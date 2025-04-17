@@ -430,6 +430,21 @@ export async function getPostByUuid(uuid) {
     }
 }
 
+export async function deletePostByUuid(uuid) {
+    try {
+        const res = await db.delete(Posts)
+            .where(eq(Posts.uuid, uuid));
+
+        if (res.rowsAffected < 1)
+            return false;
+
+        return true;
+    } catch (e) {
+        console.error(`Failed to delete post by uuid: ${e.message}`);
+        return false;
+    }
+}
+
 export async function getUserIdFromPostUuid(uuid) {
     try {
         const res = await db.select()

@@ -3,9 +3,9 @@ const router = express.Router();
 import {
     getUserIdFromPostUuid
 } from "../../services/db/posts.js";
-import {authRegisteredMiddleware} from "../authValidation.js";
+import {authRegisteredMiddleware, isUserAdmin} from "../authValidation.js";
 import {
-    addComment, getCommentByUuid,
+    addComment, deleteCommentByUuid, getCommentByUuid,
     getMainCommentsForPost,
     getRepliesForComment, getReplyCountForComment, getUserIdFromCommentUuid,
     sanitizeCommentArr
@@ -79,6 +79,27 @@ router.get('/comment/:uuid', async (req, res) => {
 
     const sanitized = await sanitizeCommentArr([comment]);
     res.send(sanitized[0]);
+});
+
+router.delete('/comment/:uuid', authRegisteredMiddleware, async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const comment = await getCommentByUuid(uuid);
+    if (comment == undefined)
+        return res.status(500).send('Failed to get comment');
+
+    if ((comment.userId !== req.userId) && !(await isUserAdmin(req.userId)))
+        return res.status(403).send('You are not allowed to delete this comment');
+
+    const result = await deleteCommentByUuid(uuid);
+    if (!result)
+        return res.status(500).send('Failed to delete comment');
+
+    console.log(`> User ${req.userId} deleted comment:`, uuid);
+
+    res.send('Comment deleted');
 });
 
 router.get('/post/:uuid', async (req, res) => {
