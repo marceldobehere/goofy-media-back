@@ -19,13 +19,13 @@ function getHtmlWithMetadataAndRedirectUrl(url, title, description, iconUrl) {
     <head>
         <meta charset="UTF-8">
         <title>${title}</title>
-        <meta name="description" content="${encodeURIComponent(description)}">
-        <meta property="og:title" content="${encodeURIComponent(title)}">
-        <meta property="og:description" content="${encodeURIComponent(description)}">
+        <meta name="description" content="${escapeHtml(description)}">
+        <meta property="og:title" content="${escapeHtml(title)}">
+        <meta property="og:description" content="${escapeHtml(description)}">
         <meta property="og:image" content="${iconUrl}">
         <meta property="og:url" content="${url}">
         <meta property="og:type" content="website">
-        <meta property="og:site_name" content="${encodeURIComponent(title)}">
+        <meta property="og:site_name" content="${escapeHtml(title)}">
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" href="${iconUrl}" type="image/png">
