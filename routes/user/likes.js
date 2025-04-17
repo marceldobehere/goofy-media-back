@@ -5,9 +5,27 @@ import {authRegisteredMiddleware} from "../authValidation.js";
 import {
     addLikeNotification
 } from "../../services/db/notifications.js";
-import {addLike, isPostLiked, removeLike} from "../../services/db/likes.js";
+import {addLike, getAllUserIdsThatLikedPost, isPostLiked, removeLike} from "../../services/db/likes.js";
 import {getUserIdFromPostUuid} from "../../services/db/posts.js";
 
+router.get('/post/likes/:uuid', authRegisteredMiddleware, async (req, res) => {
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return res.status(400).send('Missing uuid');
+
+    const posterUserId = await getUserIdFromPostUuid(uuid);
+    if (posterUserId === undefined)
+        return res.status(500).send('Failed to get user id from post uuid');
+
+    if (req.userId != posterUserId)
+        return res.status(403).send('You are not allowed to see this');
+
+    const userIds = await getAllUserIdsThatLikedPost(uuid);
+    if (userIds === undefined)
+        return res.status(500).send('Failed to get user ids');
+
+    return res.send(userIds);
+});
 
 router.get('/post/:uuid', authRegisteredMiddleware, async (req, res) => {
     const uuid = req.params.uuid;

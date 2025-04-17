@@ -8,6 +8,21 @@ import * as rsa from "../security/rsa.js";
 const DEFAULT_LIMIT = 30;
 const DEFAULT_START = 0;
 
+export async function getAllUserIdsThatLikedPost(postUuid) {
+    const res = await db.select()
+        .from(Likes)
+        .where(eq(Likes.postUuid, postUuid));
+
+    if (res === undefined || res.length < 1)
+        return [];
+
+    let userIds = [];
+    for (let result of res) {
+        userIds.push(result.userId);
+    }
+    return userIds;
+}
+
 export async function getLikedPostUuids(userId, limit, start) {
     if (limit === undefined || typeof limit !== 'number' || limit < 1)
         limit = DEFAULT_LIMIT;
