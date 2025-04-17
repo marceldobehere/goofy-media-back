@@ -129,6 +129,28 @@ export async function getPublicKeyFromUserId(userId) {
     return undefined;
 }
 
+export async function getDisplayNameFromUserId(userId) {
+    if (userId === undefined)
+        return undefined;
+
+    try {
+        const res = await db.select({
+            displayName: PublicUserInfo.displayName
+        })
+            .from(PublicUserInfo)
+            .where(eq(PublicUserInfo.userId, userId))
+            .get();
+
+        if (res === undefined || res.displayName === undefined)
+            return undefined;
+
+        return res.displayName;
+    } catch (e) {
+        console.error(`Failed to get display name from userId: ${e.message}`);
+        return undefined;
+    }
+}
+
 const USER_SEARCH_LIMIT = 20;
 
 export async function getUserIdsStartingWithUserId(userId) {
