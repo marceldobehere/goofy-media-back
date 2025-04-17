@@ -12,7 +12,7 @@ function escapeHtml(html) {
         .replace(/'/g, "&#039;");
 }
 
-function getHtmlWithMetadataAndRedirectUrl(url, title, description, iconUrl) {
+function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl) {
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -20,7 +20,7 @@ function getHtmlWithMetadataAndRedirectUrl(url, title, description, iconUrl) {
         <meta charset="UTF-8">
         <title>${title}</title>
         <meta name="description" content="${escapeHtml(description)}">
-        <meta property="og:title" content="${escapeHtml(title)}">
+        <meta property="og:title" content="${escapeHtml(header)}">
         <meta property="og:description" content="${escapeHtml(description)}">
         <meta property="og:image" content="${iconUrl}">
         <meta property="og:url" content="${url}">
@@ -50,13 +50,15 @@ function getHtmlWithMetadataAndRedirectUrl(url, title, description, iconUrl) {
 
 const urlIcon = "https://marceldobehere.github.io/goofy-media-front/icon.ico";
 
-const getHtmlWithMetadataAndRedirect = (url, title, description) => {
+const getHtmlWithMetadataAndRedirect = (url, header, title, description) => {
+    if (header.length > 100)
+        header = header.substring(0, 100) + "...";
     if (title.length > 100)
         title = title.substring(0, 100) + "...";
     if (description.length > 200)
         description = description.substring(0, 200) + "...";
 
-    return getHtmlWithMetadataAndRedirectUrl(url, title, description, urlIcon);
+    return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, urlIcon);
 }
 
 export function getSmolPostUrl(postUuid) {
@@ -71,7 +73,7 @@ export function getSmolUserUrl(userId) {
     return `${process.env.CLIENT_URL}/user/profile?userId=${encodeURIComponent(userId)}&serverId=${encodeURIComponent(process.env.SERVER_URL)}`;
 }
 
-function sillyTitle(userId, displayName) {
+function sillyHeader(userId, displayName) {
     if (displayName == "" || displayName == undefined)
         return `@${userId} on Goofy Media`;
     else
@@ -88,9 +90,9 @@ router.get("/post/:uuid", async (req, res) => {
         return res.redirect(getSmolPostUrl(uuid));
 
     const displayName = await getDisplayNameFromUserId(postInfo.userId);
-    const title = sillyTitle(postInfo.userId, displayName);
+    const header = sillyHeader(postInfo.userId, displayName);
 
-    res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), title, `${postInfo.post.title}`));
+    res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text));
 });
 
 router.get("/user/:userId", async (req, res) => {
@@ -99,9 +101,9 @@ router.get("/user/:userId", async (req, res) => {
         return res.status(400).send('Missing userId');
 
     const displayName = await getDisplayNameFromUserId(userId);
-    const title = sillyTitle(userId, displayName);
+    const header = sillyHeader(userId, displayName);
 
-    res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), title, `Showing User Profile for @${userId}`));
+    res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`));
 });
 
 export default router;
