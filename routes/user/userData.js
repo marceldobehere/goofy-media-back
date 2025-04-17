@@ -14,7 +14,7 @@ router.get("/like/:query", async (req, res) => {
     if (!query)
         return res.status(400).send('Missing query');
 
-    const users = await getUserIdsStartingWithName(decodeURIComponent(query));
+    const users = await getUserIdsStartingWithName(query);
     if (users === undefined)
         return res.status(500).send('Failed to get users');
 
