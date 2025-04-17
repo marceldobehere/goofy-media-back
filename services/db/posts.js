@@ -464,6 +464,10 @@ export async function getUserIdFromPostUuid(uuid) {
 }
 
 export async function getTagsStartingWith(tagStart) {
+    tagStart = tagStart.replaceAll("%", "").replaceAll("_", "");
+    if (tagStart == "")
+        return [];
+
     try {
         const count = sql`cast(count(${Tags.tag}) as int)`;
         const res = await db.select({

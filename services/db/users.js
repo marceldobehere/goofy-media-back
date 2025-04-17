@@ -132,6 +132,10 @@ export async function getPublicKeyFromUserId(userId) {
 const USER_SEARCH_LIMIT = 20;
 
 export async function getUserIdsStartingWithUserId(userId) {
+    userId = userId.replaceAll("%", "").replaceAll("_", "");
+    if (userId == "")
+        return [];
+
     try {
         const res = await db.select({
             userId: RegisteredUsers.userId,
@@ -157,6 +161,10 @@ export async function getUserIdsStartingWithUserId(userId) {
 }
 
 export async function getUserIdsStartingWithUsername(username) {
+    username = username.replaceAll("%", "").replaceAll("_", "");
+    if (username == "")
+        return [];
+
     // need to join with public info to get the display name
     try {
         const res = await db.select({
