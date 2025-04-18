@@ -2,6 +2,8 @@ import db from './drizzle/drizzle.js';
 import {Notifications} from './drizzle/schema.js';
 import {eq, desc, count, and} from 'drizzle-orm';
 import * as cryptoUtils from '../security/cryptoUtils.js';
+import {getAllRegisteredUserEntries} from "./users.js";
+import {sendWebhookGeneralNotificationToUser} from "../webhook.js";
 
 const DEFAULT_LIMIT = 60;
 const DEFAULT_START = 0;
@@ -100,6 +102,8 @@ export async function addFollowNotification(userId, followerUserId) {
         otherUserId: followerUserId
     };
 
+    await sendWebhookGeneralNotificationToUser(userId, `New Follower`, `User @${followerUserId} followed you!`);
+
     return await addNotification(notification);
 }
 
@@ -114,6 +118,8 @@ export async function addLikeNotification(userId, likerUserId, postUuid) {
         otherUserId: likerUserId,
         postUuid: postUuid
     };
+
+    await sendWebhookGeneralNotificationToUser(userId, `New Like`, `User @${likerUserId} liked your post!`);
 
     return await addNotification(notification);
 }
@@ -130,6 +136,8 @@ export async function addCommentNotification(userId, commenterUserId, postUuid, 
         postUuid: postUuid,
         commentResponseUuid: commentResponseUuid
     };
+
+    await sendWebhookGeneralNotificationToUser(userId, `New Comment`, `User @${commenterUserId} commented on your post!`);
 
     return await addNotification(notification);
 }
@@ -148,6 +156,8 @@ export async function addReplyNotification(userId, replierUserId, postUuid, repl
         commentResponseUuid: commentResponseUuid
     };
 
+    await sendWebhookGeneralNotificationToUser(userId, `New Reply`, `User @${replierUserId} replied to your comment!`);
+
     return await addNotification(notification);
 }
 
@@ -163,12 +173,23 @@ export async function addShareNotification(userId, sharerUserId, postUuid) {
         postUuid: postUuid
     };
 
+    await sendWebhookGeneralNotificationToUser(userId, `New Share`, `User @${sharerUserId} shared your post!`);
+
     return await addNotification(notification);
 }
 
 export async function addMentionNotification(userId, mentionerUserId, postUuid) {
     if (userId == mentionerUserId)
         return;
+
+    if (userId == "everyone") {
+        console.log("Adding mention notification to all users: ", userId, mentionerUserId, postUuid);
+
+        const users = await getAllRegisteredUserEntries();
+        for (let user of users)
+            await addMentionNotification(user.userId, mentionerUserId, postUuid);
+        return;
+    }
 
     const notification = {
         userId: userId,
@@ -177,6 +198,8 @@ export async function addMentionNotification(userId, mentionerUserId, postUuid) 
         otherUserId: mentionerUserId,
         postUuid: postUuid
     };
+
+    await sendWebhookGeneralNotificationToUser(userId, `New Mention`, `User @${mentionerUserId} mentioned you in a post!`);
 
     return await addNotification(notification);
 }

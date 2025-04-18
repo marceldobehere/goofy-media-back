@@ -6,6 +6,7 @@ import {
     getNotificationsForUser,
     readAllNotificationsForUser
 } from "../../services/db/notifications.js";
+import {createOrUpdateUserWebhookNotifEntry} from "../../services/db/userWebhookNotifs.js";
 
 const MAX_USER_LIMIT = 30;
 function extractStartAndLimitFromHeaders(headers) {
@@ -67,6 +68,23 @@ router.get('/count', authRegisteredMiddleware, async (req, res) => {
         return res.status(500).send('Failed to get comment count');
 
     res.send({count});
+});
+
+router.post('/register-user-webhook', authRegisteredMiddleware, async (req, res) => {
+    const userId = req.userId;
+    if (!userId)
+        return res.status(400).send('Missing userId');
+
+    const {webhookService, webhookUrl, webhookType} = req.body;
+    if (webhookService == undefined || webhookUrl == undefined || webhookType == undefined)
+        return res.status(400).send('Missing webhook data');
+
+    const result = await createOrUpdateUserWebhookNotifEntry(userId, webhookService, webhookUrl, webhookType);
+    if (!result)
+        return res.status(400).send('Failed to register webhook');
+
+    console.log(`> User ${userId} registered webhook for ${webhookType}`);
+    res.send('Webhook registered');
 });
 
 export default router;

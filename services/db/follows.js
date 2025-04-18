@@ -8,18 +8,25 @@ import * as rsa from "../security/rsa.js";
 const DEFAULT_LIMIT = 30;
 const DEFAULT_START = 0;
 
-export async function getAllFollowersForUser(userId, limit, start){
+export async function getAllFollowersForUser(userId, limit, start, getAll){
     if (limit === undefined || typeof limit !== 'number' || limit < 1)
         limit = DEFAULT_LIMIT;
     if (start === undefined || typeof start !== 'number' || start < 0)
         start = DEFAULT_START;
 
-    const res = await db.select()
-        .from(Follows)
-        .where(eq(Follows.followingUserId, userId))
-        .limit(limit)
-        .offset(start)
-        .orderBy(desc(Follows.followedAt));
+    const res = getAll ?
+        (
+            await db.select()
+                .from(Follows)
+                .where(eq(Follows.followingUserId, userId))
+        ) : (
+            await db.select()
+                .from(Follows)
+                .where(eq(Follows.followingUserId, userId))
+                .limit(limit)
+                .offset(start)
+                .orderBy(desc(Follows.followedAt))
+        );
 
     if (res === undefined || res.length < 1)
         return [];

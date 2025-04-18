@@ -496,7 +496,7 @@ export async function getTagsStartingWith(tagStart) {
     }
 }
 
-export async function findAllValidMentionsInPostText(text) {
+export async function findAllValidMentionsInPostText(text, isAdmin) {
     if (typeof text !== "string")
         return [];
 
@@ -511,6 +511,8 @@ export async function findAllValidMentionsInPostText(text) {
     const mentionPromises = [];
     for (let mention of maybeMentions)
         mentionPromises.push(async () => {
+            if (mention == "everyone")
+                return isAdmin ? "everyone" : undefined;
             const pubKey = await getPublicKeyFromUserId(mention);
             if (pubKey == undefined)
                 return undefined;

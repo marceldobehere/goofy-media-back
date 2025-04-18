@@ -92,6 +92,20 @@
       "when": 1744907356015,
       "tag": "0012_spooky_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1745003087967,
+      "tag": "0013_elite_sauron",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1745008154489,
+      "tag": "0014_cultured_hellion",
+      "breakpoints": true
     }
   ]
 }

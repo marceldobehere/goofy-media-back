@@ -3,7 +3,7 @@ import {authLockMiddleware, authRandomGuestMiddleware, authRegisteredMiddleware}
 import * as registerCodes from '../../services/db/register.js';
 import {addRegisteredUser} from '../../services/db/users.js';
 import drizzler from '../../services/db/drizzle/drizzle.js';
-import {sendRegisterCodeRequest} from "../../services/webhook.js";
+import {sendAnonFeedbackRequest, sendRegisterCodeRequest} from "../../services/webhook.js";
 
 const router = express.Router();
 export default router;
@@ -80,6 +80,25 @@ router.post('/register-msg', authRandomGuestMiddleware, async (req, res) => {
         res.send('Message sent');
     else
         res.status(500).send('Failed to send message');
+});
+
+router.post('/feedback-msg', async (req, res) => {
+    const msg = req.body.msg;
+    if (typeof msg !== "string") {
+        res.status(400).send('Bad request');
+        return;
+    }
+    if (msg.length > 1500) {
+        res.status(400).send('Message too long');
+        return;
+    }
+
+    const result = await sendAnonFeedbackRequest(msg);
+
+    if (result)
+        res.send('Anonymous Feedback sent');
+    else
+        res.status(500).send('Failed to send feedback');
 });
 
 (async () => {

@@ -16,10 +16,11 @@ import {
     getLikedPostsByUser, getFollowingPostsByUser, deletePostByUuid
 } from "../../services/db/posts.js";
 import {authRegisteredMiddleware, isUserAdmin} from "../authValidation.js";
-import {postPosted} from "../../services/webhook.js";
+import {postPosted, sendWebhookFeedNotificationToUser} from "../../services/webhook.js";
 import {getSmolPostUrl} from "../smol/smol.js";
 import * as cryptoUtils from "../../services/security/cryptoUtils.js";
 import {addMentionNotification} from "../../services/db/notifications.js";
+import {getAllFollowersForUser} from "../../services/db/follows.js";
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
     const body = req.body;
@@ -201,11 +202,24 @@ router.post('/', authRegisteredMiddleware, async (req, res) => {
     await postPosted(req.userId, post.post.title, post.post.text, getSmolPostUrl(uuid))
 
     try {
-        const mentions = await findAllValidMentionsInPostText(post.post.text);
+        const mentions = await findAllValidMentionsInPostText(post.post.text, req.user.data.admin);
         for (let mention of mentions)
             await addMentionNotification(mention, req.userId, uuid);
     } catch (e) {
         console.error(`> Sending Mention Notifications failed: `, e, post)
+    }
+
+    try {
+        const allFollowers = await getAllFollowersForUser(req.userId, 0, 0, true);
+        for (let follower of allFollowers) {
+            const userId = follower.userId;
+            if (userId === req.userId)
+                continue;
+
+            await sendWebhookFeedNotificationToUser(userId, `New Post from @${req.userId}`, post.post.title);
+        }
+    } catch (e) {
+        console.error(`> Sending Feed Notifications failed: `, e, post)
     }
 
     res.send('Post added');

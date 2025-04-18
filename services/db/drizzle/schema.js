@@ -212,16 +212,33 @@ export const PublicUserInfo = sqliteTable('publicUserInfo', {
     profilePictureUrl: text(),
     profileBannerUrl: text(),
     pinnedPostUuid: text(),
-        // .references(() => Posts.uuid, {
-        //     onDelete: 'set null',
-        //     onUpdate: 'cascade',
-        // }),
+    // .references(() => Posts.uuid, {
+    //     onDelete: 'set null',
+    //     onUpdate: 'cascade',
+    // }),
     updatedAt: integer('updatedAt')
         .default(sql`(strftime('%s', 'now'))`)
         .notNull(),
     signature: text()
         .notNull(),
 });
+
+export const UserWebhookNotifs = sqliteTable('userWebhookNotifs', {
+        userId: text()
+            .references(() => RegisteredUsers.userId, {
+                onDelete: 'cascade',
+                onUpdate: 'cascade',
+            })
+            .notNull(),
+        webhookService: text()
+            .notNull(), // discord (for now)
+        webhookUrl: text()
+            .notNull(),
+        webhookType: text()
+            .notNull(), // all-notifications, new-post-in-feed
+    },
+    (table) => [primaryKey({columns: [table.userId, table.webhookType]})]
+);
 
 export const Test = sqliteTable('test', {
     test: text().primaryKey().notNull(),

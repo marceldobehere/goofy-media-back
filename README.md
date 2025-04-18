@@ -20,6 +20,7 @@ CLIENT_URL="https://marceldobehere.github.io/goofy-media-front"
 TURSO_DATABASE_URL=file:./data/main.db
 REGISTER_DISCORD_WEBHOOK_URL="..."
 FEEDBACK_DISCORD_WEBHOOK_URL="..."
+ANON_FEEDBACK_DISCORD_WEBHOOK_URL="..."
 POST_DISCORD_WEBHOOK_URL="..."
 ```
 

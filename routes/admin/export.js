@@ -15,6 +15,11 @@ import {
 import {getAllLikeEntries, importAllLikes, resetLikeTable} from "../../services/db/likes.js";
 import {getAllFollowEntries, importAllFollows, resetFollowTable} from "../../services/db/follows.js";
 import {getAllPublicInfoEntries, importAllPublicInfos, resetPublicInfoTable} from "../../services/db/publicInfo.js";
+import {
+    getAllUserWebhookNotifEntries,
+    importAllUserWebhookNotifEntries,
+    resetUserWebhookNotifsTable
+} from "../../services/db/userWebhookNotifs.js";
 
 
 async function getAllExportData() {
@@ -38,6 +43,8 @@ async function getAllExportData() {
     const follows = await getAllFollowEntries();
     console.log(" > Exporting Public Info");
     const publicInfo = await getAllPublicInfoEntries();
+    console.log(" > Exporting Webhook Notifs");
+    const webhookNotifs = await getAllUserWebhookNotifEntries();
 
     const res = {
         encStorage,
@@ -48,7 +55,8 @@ async function getAllExportData() {
         notifications,
         likes,
         follows,
-        publicInfo
+        publicInfo,
+        webhookNotifs
     };
 
     console.log("> Exported data: ", res);
@@ -60,6 +68,7 @@ async function importAllData(data) {
 
     // Delete Data
     console.log(" > Resetting tables");
+    await resetUserWebhookNotifsTable();
     await resetPublicInfoTable();
     await resetFollowTable();
     await resetLikeTable();
@@ -115,6 +124,12 @@ async function importAllData(data) {
     const publicInfo = data.publicInfo;
     if (publicInfo)
         await importAllPublicInfos(publicInfo);
+
+    console.log(" > Importing Webhook Notifs");
+    const webhookNotifs = data.webhookNotifs;
+    if (webhookNotifs)
+        await importAllUserWebhookNotifEntries(webhookNotifs);
+
 
     console.log("> Imported data!");
     return true;
