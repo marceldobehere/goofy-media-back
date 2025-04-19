@@ -78,6 +78,29 @@ const getHtmlWithMetadataAndRedirect = (url, header, title, description) => {
     return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, urlIcon);
 }
 
+const getHtmlWithMetadataAndRedirectAndBigImage = (url, header, title, description, imageUrl) => {
+    if (header.length > 100)
+        header = header.substring(0, 100) + "...";
+    if (title.length > 100)
+        title = title.substring(0, 100) + "...";
+    if (description.length > 200)
+        description = description.substring(0, 200) + "...";
+
+    return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, imageUrl, true, false);
+}
+
+const getHtmlWithMetadataAndRedirectAndBigVideo = (url, header, title, description, videoUrl) => {
+    if (header.length > 100)
+        header = header.substring(0, 100) + "...";
+    if (title.length > 100)
+        title = title.substring(0, 100) + "...";
+    if (description.length > 200)
+        description = description.substring(0, 200) + "...";
+
+    return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, videoUrl, true, true);
+}
+
+
 export function getSmolPostUrl(postUuid) {
     if (!postUuid)
         return undefined;
@@ -109,6 +132,8 @@ router.get("/post/:uuid", async (req, res) => {
     const displayName = await getDisplayNameFromUserId(postInfo.userId);
     const header = sillyHeader(postInfo.userId, displayName);
 
+    // Code to check if it includes an embedded video or image and call the other methods if needed!
+
     res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text));
 });
 
@@ -121,16 +146,6 @@ router.get("/user/:userId", async (req, res) => {
     const header = sillyHeader(userId, displayName);
 
     res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`));
-});
-
-router.get("/t/temp1", async (req, res) => {
-    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", true, true));
-});
-router.get("/t/temp2", async (req, res) => {
-    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, true, false));
-});
-router.get("/t/temp3", async (req, res) => {
-    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, false));
 });
 
 export default router;
