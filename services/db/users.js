@@ -151,6 +151,29 @@ export async function getDisplayNameFromUserId(userId) {
     }
 }
 
+export async function getPfpUrlFromUserId(userId) {
+    if (userId === undefined)
+        return undefined;
+
+    try {
+        const res = await db.select({
+            pfpUrl: PublicUserInfo.profilePictureUrl
+        })
+            .from(PublicUserInfo)
+            .where(eq(PublicUserInfo.userId, userId))
+            .get();
+
+        if (res === undefined || res.pfpUrl === undefined || res.pfpUrl == "")
+            return undefined;
+
+        return res.pfpUrl;
+    } catch (e) {
+        console.error(`Failed to get pfp url from userId: ${e.message}`);
+        return undefined;
+    }
+}
+
+
 const USER_SEARCH_LIMIT = 20;
 
 export async function getUserIdsStartingWithUserId(userId) {

@@ -1,6 +1,6 @@
 import express from "express";
 import {getPostByUuid} from "../../services/db/posts.js";
-import {getDisplayNameFromUserId} from "../../services/db/users.js";
+import {getDisplayNameFromUserId, getPfpUrlFromUserId} from "../../services/db/users.js";
 import {isFilenameType, tryToExtractEmbeddedMedialFromText, videoTypes} from "../../services/markedStuff.js";
 const router = express.Router();
 
@@ -66,17 +66,20 @@ function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, icon
         Icon: <img src="${iconUrl}" alt="Icon" width="16" height="16"><br>
 */
 
-const urlIcon = "https://marceldobehere.github.io/goofy-media-front/icon.png";
+const websiteIconUrl = "https://marceldobehere.github.io/goofy-media-front/icon.png";
+const uknownUserPfpUrl = "https://marceldobehere.github.io/goofy-media-front/unknown_user.png";
 
-const getHtmlWithMetadataAndRedirect = (url, header, title, description) => {
+const getHtmlWithMetadataAndRedirect = (url, header, title, description, iconUrl) => {
     if (header.length > 100)
         header = header.substring(0, 100) + "...";
     if (title.length > 100)
         title = title.substring(0, 100) + "...";
     if (description.length > 200)
         description = description.substring(0, 200) + "...";
+    if (iconUrl == undefined)
+        iconUrl = websiteIconUrl;
 
-    return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, urlIcon);
+    return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl);
 }
 
 const getHtmlWithMetadataAndRedirectAndBigImage = (url, header, title, description, imageUrl) => {
@@ -131,6 +134,7 @@ router.get("/post/:uuid", async (req, res) => {
         return res.redirect(getSmolPostUrl(uuid));
 
     const displayName = await getDisplayNameFromUserId(postInfo.userId);
+    const pfpUrl = await getPfpUrlFromUserId(postInfo.userId) || uknownUserPfpUrl;
     const header = sillyHeader(postInfo.userId, displayName);
     const postUrl = getSmolPostUrl(uuid);
 
@@ -138,7 +142,7 @@ router.get("/post/:uuid", async (req, res) => {
     const {text, mediaUrl} = tryToExtractEmbeddedMedialFromText(postInfo.post.text);
     const isVideo = isFilenameType(mediaUrl, videoTypes);
     if (mediaUrl == undefined)
-        return res.send(getHtmlWithMetadataAndRedirect(postUrl, header, postInfo.post.title, text));
+        return res.send(getHtmlWithMetadataAndRedirect(postUrl, header, postInfo.post.title, text, pfpUrl));
     else
     {
         if (isVideo)
@@ -154,9 +158,10 @@ router.get("/user/:userId", async (req, res) => {
         return res.status(400).send('Missing userId');
 
     const displayName = await getDisplayNameFromUserId(userId);
+    const pfpUrl = await getPfpUrlFromUserId(postInfo.userId) || uknownUserPfpUrl;
     const header = sillyHeader(userId, displayName);
 
-    res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`));
+    res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`, pfpUrl));
 });
 
 export default router;
