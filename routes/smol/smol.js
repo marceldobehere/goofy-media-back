@@ -158,7 +158,7 @@ router.get("/user/:userId", async (req, res) => {
         return res.status(400).send('Missing userId');
 
     const displayName = await getDisplayNameFromUserId(userId);
-    const pfpUrl = await getPfpUrlFromUserId(postInfo.userId) || uknownUserPfpUrl;
+    const pfpUrl = await getPfpUrlFromUserId(userId) || uknownUserPfpUrl;
     const header = sillyHeader(userId, displayName);
 
     res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`, pfpUrl));
