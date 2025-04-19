@@ -123,13 +123,13 @@ router.get("/user/:userId", async (req, res) => {
     res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`));
 });
 
-router.get("/temp1", async (req, res) => {
+router.get("/t/temp1", async (req, res) => {
     res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", true, true));
 });
-router.get("/temp2", async (req, res) => {
+router.get("/t/temp2", async (req, res) => {
     res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, true, false));
 });
-router.get("/temp3", async (req, res) => {
+router.get("/t/temp3", async (req, res) => {
     res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, false));
 });
 
