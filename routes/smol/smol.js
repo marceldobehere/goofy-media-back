@@ -18,17 +18,21 @@ function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, icon
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>${title}</title>
-        <meta name="description" content="${escapeHtml(description)}">
-        <meta property="og:title" content="${escapeHtml(title)}">
-        <meta property="og:description" content="${escapeHtml(description)}">
-        <meta property="og:image" content="${iconUrl}">
-        <meta property="og:url" content="${url}">
         <meta property="og:type" content="website">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <title>${title}</title>
+        <meta property="og:title" content="${escapeHtml(title)}">
+        
         <meta property="og:site_name" content="${escapeHtml(header)}">
         
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="${escapeHtml(description)}">
+        <meta property="og:description" content="${escapeHtml(description)}">
+        
+        <meta property="og:image" content="${iconUrl}">
         <link rel="icon" href="${iconUrl}" type="image/png">
+        
+        <meta property="og:url" content="${url}">
     </head>
     <body>        
         Redirecting to <a href="${url}">${url}</a>
@@ -48,7 +52,7 @@ function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, icon
         Icon: <img src="${iconUrl}" alt="Icon" width="16" height="16"><br>
 */
 
-const urlIcon = "https://marceldobehere.github.io/goofy-media-front/icon.ico";
+const urlIcon = "https://marceldobehere.github.io/goofy-media-front/icon.png";
 
 const getHtmlWithMetadataAndRedirect = (url, header, title, description) => {
     if (header.length > 100)
