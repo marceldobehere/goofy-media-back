@@ -1,6 +1,7 @@
 import express from "express";
 import {getPostByUuid} from "../../services/db/posts.js";
 import {getDisplayNameFromUserId} from "../../services/db/users.js";
+import {isFilenameType, tryToExtractEmbeddedMedialFromText, videoTypes} from "../../services/markedStuff.js";
 const router = express.Router();
 
 function escapeHtml(html) {
@@ -133,8 +134,17 @@ router.get("/post/:uuid", async (req, res) => {
     const header = sillyHeader(postInfo.userId, displayName);
 
     // Code to check if it includes an embedded video or image and call the other methods if needed!
-
-    res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text));
+    const maybeMedia = tryToExtractEmbeddedMedialFromText(postInfo.post.text);
+    const isVideo = isFilenameType(maybeMedia, videoTypes);
+    if (maybeMedia == undefined)
+        return res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text));
+    else
+    {
+        if (isVideo)
+            return res.send(getHtmlWithMetadataAndRedirectAndBigVideo(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text, maybeMedia));
+        else
+            return res.send(getHtmlWithMetadataAndRedirectAndBigImage(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text, maybeMedia));
+    }
 });
 
 router.get("/user/:userId", async (req, res) => {
