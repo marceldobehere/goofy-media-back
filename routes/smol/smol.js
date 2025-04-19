@@ -12,7 +12,18 @@ function escapeHtml(html) {
         .replace(/'/g, "&#039;");
 }
 
-function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl) {
+function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl, makeFullScreen, isVideo) {
+
+    const mediaTypeTag = isVideo ?
+        `<meta name="twitter:card" content="player">
+         <meta property="og:video" content="${iconUrl}">` :
+        `<meta name="twitter:card" content="summary_large_image">
+         <meta property="og:image" content="${iconUrl}">`;
+
+
+    const addedTag = makeFullScreen ? mediaTypeTag :
+        `<meta property="og:image" content="${iconUrl}">`;
+
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -29,8 +40,10 @@ function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, icon
         <meta name="description" content="${escapeHtml(description)}">
         <meta property="og:description" content="${escapeHtml(description)}">
         
-        <meta property="og:image" content="${iconUrl}">
-        <link rel="icon" href="${iconUrl}" type="image/png">
+        ${addedTag}
+        <link rel="icon" type="image/png" href="${iconUrl}">
+        
+        
         
         <meta property="og:url" content="${url}">
     </head>
@@ -108,6 +121,16 @@ router.get("/user/:userId", async (req, res) => {
     const header = sillyHeader(userId, displayName);
 
     res.send(getHtmlWithMetadataAndRedirect(getSmolUserUrl(userId), header, header, `Showing User Profile for @${userId}`));
+});
+
+router.get("/temp1", async (req, res) => {
+    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", true, true));
+});
+router.get("/temp2", async (req, res) => {
+    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, true, false));
+});
+router.get("/temp3", async (req, res) => {
+    res.send(getHtmlWithMetadataAndRedirectUrl("URL", "HEADER", "TITLE", "DESC", urlIcon, false));
 });
 
 export default router;
