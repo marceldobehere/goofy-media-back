@@ -10,7 +10,8 @@ function escapeHtml(html) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/'/g, "&#039;")
+        .replace(/\n/g, "<br>");
 }
 
 function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl, makeFullScreen, isVideo) {
@@ -42,7 +43,6 @@ function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, icon
         <meta property="og:description" content="${escapeHtml(description)}">
         
         ${addedTag}
-        <link rel="icon" type="image/png" href="${iconUrl}">
         
         
         
@@ -132,18 +132,19 @@ router.get("/post/:uuid", async (req, res) => {
 
     const displayName = await getDisplayNameFromUserId(postInfo.userId);
     const header = sillyHeader(postInfo.userId, displayName);
+    const postUrl = getSmolPostUrl(uuid);
 
     // Code to check if it includes an embedded video or image and call the other methods if needed!
-    const maybeMedia = tryToExtractEmbeddedMedialFromText(postInfo.post.text);
-    const isVideo = isFilenameType(maybeMedia, videoTypes);
-    if (maybeMedia == undefined)
-        return res.send(getHtmlWithMetadataAndRedirect(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text));
+    const {text, mediaUrl} = tryToExtractEmbeddedMedialFromText(postInfo.post.text);
+    const isVideo = isFilenameType(mediaUrl, videoTypes);
+    if (mediaUrl == undefined)
+        return res.send(getHtmlWithMetadataAndRedirect(postUrl, header, postInfo.post.title, text));
     else
     {
         if (isVideo)
-            return res.send(getHtmlWithMetadataAndRedirectAndBigVideo(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text, maybeMedia));
+            return res.send(getHtmlWithMetadataAndRedirectAndBigVideo(postUrl, header, postInfo.post.title, text, mediaUrl));
         else
-            return res.send(getHtmlWithMetadataAndRedirectAndBigImage(getSmolPostUrl(uuid), header, postInfo.post.title, postInfo.post.text, maybeMedia));
+            return res.send(getHtmlWithMetadataAndRedirectAndBigImage(postUrl, header, postInfo.post.title, text, mediaUrl));
     }
 });
 
