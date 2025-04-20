@@ -124,9 +124,9 @@ export async function validateLike(like) {
     return "OK";
 }
 
-export async function addLike(like) {
+export async function addLike(like, ignoreValid) {
     like = await sanitizeLike(like);
-    const valid = await validateLike(like);
+    const valid = ignoreValid ? "OK" : (await validateLike(like));
     if (valid !== "OK") {
         console.log("Like validate failed: ", valid, like);
         return false;
@@ -187,7 +187,7 @@ export async function getAllLikeEntries() {
 
 export async function importAllLikes(data) {
     for (let like of data)
-        await addLike(like);
+        await addLike(like, true);
 }
 
 export async function resetLikeTable() {

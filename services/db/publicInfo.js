@@ -157,9 +157,9 @@ export async function getPublicInfo(userId) {
 }
 
 
-export async function addPublicInfo(publicInfo) {
+export async function addPublicInfo(publicInfo, ignoreValid) {
     publicInfo = await sanitizePublicInfo(publicInfo);
-    const valid = await validatePublicInfo(publicInfo);
+    const valid = ignoreValid ? "OK" : (await validatePublicInfo(publicInfo));
     if (valid !== "OK") {
         console.log("Public Info validate failed: ", valid, publicInfo);
         return false;
@@ -224,7 +224,7 @@ export async function getAllPublicInfoEntries() {
 
 export async function importAllPublicInfos(data) {
     for (let like of data)
-        await addPublicInfo(like);
+        await addPublicInfo(like, true);
 }
 
 export async function resetPublicInfoTable() {

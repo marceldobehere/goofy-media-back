@@ -130,9 +130,9 @@ export async function validateFollow(follow) {
     return "OK";
 }
 
-export async function addFollow(follow) {
+export async function addFollow(follow, ignoreValid) {
     follow = await sanitizeFollow(follow);
-    const valid = await validateFollow(follow);
+    const valid = ignoreValid ? "OK" : (await validateFollow(follow));
     if (valid !== "OK") {
         console.log("Follow validate failed: ", valid, follow);
         return false;
@@ -193,7 +193,7 @@ export async function getAllFollowEntries() {
 
 export async function importAllFollows(data) {
     for (let follow of data)
-        await addFollow(follow);
+        await addFollow(follow, true);
 }
 
 export async function resetFollowTable() {
