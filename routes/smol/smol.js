@@ -10,8 +10,8 @@ function escapeHtml(html) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;")
-        .replace(/\n/g, "<br>");
+        .replace(/'/g, "&#039;");
+        // .replace(/\n/g, "<br>");
 }
 
 function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl, makeFullScreen, isVideo) {
