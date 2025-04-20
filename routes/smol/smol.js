@@ -15,6 +15,7 @@ function escapeHtml(html) {
 }
 
 function getHtmlWithMetadataAndRedirectUrl(url, header, title, description, iconUrl, makeFullScreen, isVideo) {
+    iconUrl = iconUrl.split("?")[0];
 
     const mediaTypeTag = isVideo ?
         `<meta name="twitter:card" content="player">

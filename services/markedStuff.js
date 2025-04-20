@@ -8,6 +8,8 @@ export function isFilenameType(filename, allowedTypes) {
     if (filename == undefined)
         return false;
 
+    filename = filename.split("?")[0]; // Remove query string
+
     for (let type of allowedTypes) {
         if (filename.toLowerCase().endsWith(type))
             return true;
