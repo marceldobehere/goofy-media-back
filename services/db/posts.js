@@ -323,6 +323,7 @@ export async function getLikedPostsByUser(userId, limit, start) {
     return actualRes;
 }
 
+// Potentially using JOIN instead of a big where clause
 export async function getFollowingPostsByUser(userId, limit, start) {
     // console.log("> Getting following posts for: ", userId)
     const userIds = await getAllFollowingForUser(userId);
