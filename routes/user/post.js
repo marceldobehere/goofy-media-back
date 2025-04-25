@@ -7,7 +7,6 @@ import {
     verifyPost,
     addPost,
     sanitizePostObjArr,
-    getPostsByUsers,
     getPostsByUsersAndTags,
     getPostByUuid,
     sanitizePostObj,
@@ -21,6 +20,7 @@ import {getSmolPostUrl} from "../smol/smol.js";
 import * as cryptoUtils from "../../services/security/cryptoUtils.js";
 import {addMentionNotification} from "../../services/db/notifications.js";
 import {getAllFollowersForUser} from "../../services/db/follows.js";
+import {getDisplayNameOrUserId} from "../../services/db/users.js";
 
 router.post('/verify', authRegisteredMiddleware, async (req, res) => {
     const body = req.body;
@@ -210,13 +210,14 @@ router.post('/', authRegisteredMiddleware, async (req, res) => {
     }
 
     try {
+        const displayName = await getDisplayNameOrUserId(req.userId);
         const allFollowers = await getAllFollowersForUser(req.userId, 0, 0, true);
         for (let follower of allFollowers) {
             const userId = follower.userId;
             if (userId === req.userId)
                 continue;
 
-            await sendWebhookFeedNotificationToUser(userId, `New Post from @${req.userId}`, post.post.title);
+            await sendWebhookFeedNotificationToUser(userId, `New Post from ${displayName} [Link](<${getSmolPostUrl(uuid)}>)`, post.post.title);
         }
     } catch (e) {
         console.error(`> Sending Feed Notifications failed: `, e, post)

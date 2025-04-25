@@ -129,6 +129,10 @@ export async function getPublicKeyFromUserId(userId) {
     return undefined;
 }
 
+export async function getDisplayNameOrUserId(userId) {
+    return await getDisplayNameFromUserId(userId) || `@${userId}`;
+}
+
 export async function getDisplayNameFromUserId(userId) {
     if (userId === undefined)
         return undefined;
