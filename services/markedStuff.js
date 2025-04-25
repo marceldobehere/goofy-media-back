@@ -21,12 +21,12 @@ function getAllTokens(tokens, tokenList) {
     if (tokenList == undefined)
         tokenList = [];
 
-    // console.log("> Tokens:", tokens);
+    console.log("> Tokens:", tokens);
     for (let token of tokens)
-        if (token.tokens != undefined)
-            // console.log("> Sub Tokens:", token.tokens);
+        if (token.tokens != undefined) {
+            console.log(" > Sub Tokens:", token.tokens);
             getAllTokens(token.tokens, tokenList);
-        else
+        } else
             tokenList.push(token);
 
     return tokenList;
@@ -37,7 +37,10 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
         allowedTypes = defaultAllowedTypes;
 
     try {
-        const res1 = getAllTokens(marked.lexer(text));
+        console.log("> Text:", text);
+        const lexed = marked.lexer(text);
+        console.log("> Lexed:", lexed);
+        const res1 = getAllTokens(lexed);
         console.log("> Res 1:", res1);
         const media = res1.filter((item) => item.type === "image");
         console.log("> Media:", media);
