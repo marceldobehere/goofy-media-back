@@ -21,10 +21,10 @@ function getAllTokens(tokens, tokenList) {
     if (tokenList == undefined)
         tokenList = [];
 
-    console.log("> Tokens:", tokens);
+    // console.log("> Tokens:", tokens);
     for (let token of tokens)
-        if (token.tokens != undefined) {
-            console.log(" > Sub Tokens:", token.tokens);
+        if (token.tokens != undefined && token.type != "image") {
+            // console.log(" > Sub Tokens:", token.tokens);
             getAllTokens(token.tokens, tokenList);
         } else
             tokenList.push(token);
@@ -37,13 +37,13 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
         allowedTypes = defaultAllowedTypes;
 
     try {
-        console.log("> Text:", text);
+        // console.log("> Text:", text);
         const lexed = marked.lexer(text);
-        console.log("> Lexed:", lexed);
+        // console.log("> Lexed:", lexed);
         const res1 = getAllTokens(lexed);
-        console.log("> Res 1:", res1);
+        // console.log("> Res 1:", res1);
         const media = res1.filter((item) => item.type === "image");
-        console.log("> Media:", media);
+        // console.log("> Media:", media);
 
         const mediaUrls = [];
         for (let item of media) {
@@ -51,7 +51,7 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
             if (isFilenameType(url, allowedTypes))
                 mediaUrls.push(url);
         }
-        console.log("> Media URLs:", mediaUrls);
+        // console.log("> Media URLs:", mediaUrls);
 
         let textStuff = "";
         for (let item of res1) {
@@ -71,7 +71,7 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
 
         textStuff = textStuff.trim();
 
-        console.log("> Text Stuff:", textStuff);
+        // console.log("> Text Stuff:", textStuff);
 
         return {text: textStuff, mediaUrl: mediaUrls[0]}
     } catch (e) {
