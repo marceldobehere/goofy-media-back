@@ -38,9 +38,9 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
 
     try {
         const res1 = getAllTokens(marked.lexer(text));
-        // console.log("> Res 1:", res1);
+        console.log("> Res 1:", res1);
         const media = res1.filter((item) => item.type === "image");
-        // console.log("> Media:", media);
+        console.log("> Media:", media);
 
         const mediaUrls = [];
         for (let item of media) {
@@ -48,7 +48,7 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
             if (isFilenameType(url, allowedTypes))
                 mediaUrls.push(url);
         }
-        // console.log("> Media URLs:", mediaUrls);
+        console.log("> Media URLs:", mediaUrls);
 
         let textStuff = "";
         for (let item of res1) {
@@ -68,7 +68,7 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
 
         textStuff = textStuff.trim();
 
-        // console.log("> Text Stuff:", textStuff);
+        console.log("> Text Stuff:", textStuff);
 
         return {text: textStuff, mediaUrl: mediaUrls[0]}
     } catch (e) {
