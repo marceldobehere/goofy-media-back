@@ -75,8 +75,8 @@ const getHtmlWithMetadataAndRedirect = (url, header, title, description, iconUrl
         header = header.substring(0, 100) + "...";
     if (title.length > 100)
         title = title.substring(0, 100) + "...";
-    if (description.length > 200)
-        description = description.substring(0, 200) + "...";
+    if (description.length > 300)
+        description = description.substring(0, 300) + "...";
     if (iconUrl == undefined)
         iconUrl = websiteIconUrl;
 
@@ -88,8 +88,8 @@ const getHtmlWithMetadataAndRedirectAndBigImage = (url, header, title, descripti
         header = header.substring(0, 100) + "...";
     if (title.length > 100)
         title = title.substring(0, 100) + "...";
-    if (description.length > 200)
-        description = description.substring(0, 200) + "...";
+    if (description.length > 300)
+        description = description.substring(0, 300) + "...";
 
     return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, imageUrl, true, false);
 }
@@ -99,8 +99,8 @@ const getHtmlWithMetadataAndRedirectAndBigVideo = (url, header, title, descripti
         header = header.substring(0, 100) + "...";
     if (title.length > 100)
         title = title.substring(0, 100) + "...";
-    if (description.length > 200)
-        description = description.substring(0, 200) + "...";
+    if (description.length > 300)
+        description = description.substring(0, 300) + "...";
 
     return getHtmlWithMetadataAndRedirectUrl(url, header, title, description, videoUrl, true, true);
 }

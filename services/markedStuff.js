@@ -57,7 +57,7 @@ export function tryToExtractEmbeddedMedialFromText(text, allowedTypes) {
             else if (item.type == "list")
                 textStuff += "\n" + item.raw + "\n";
             else if (typeThing[item.type] != undefined && typeThing[item.type]["accept-text"] == true) {
-                if (item.type == "code")
+                if (item.type == "code" || item.type == "heading")
                     textStuff += "\n";
                 textStuff += item.text;
                 if (typeThing[item.type]["block"] == true)
