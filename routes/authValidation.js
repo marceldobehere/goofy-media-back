@@ -7,7 +7,7 @@ import {getRegisteredUser, getTrustedGuestUser} from "../services/db/users.js";
 
 // check if id exists with public key
 let idList = [];
-const msExtra = 1000 * 30;
+const msExtra = 1000 * 60;
 const msLess = 1000 * 8;
 
 function checkId(publicKey, id, validUntil) {
