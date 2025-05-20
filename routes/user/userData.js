@@ -18,6 +18,7 @@ router.get("/like/:query", async (req, res) => {
     if (users === undefined)
         return res.status(500).send('Failed to get users');
 
+    res.webCache.mini();
     res.send(users);
 });
 
@@ -30,6 +31,7 @@ router.get('/:userId/public-key', async (req, res) => {
     if (publicKey === undefined)
         return res.status(500).send('Failed to get public key');
 
+    res.webCache.forever();
     res.send({publicKey: publicKey});
 });
 

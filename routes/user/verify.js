@@ -7,6 +7,7 @@ import {sendFeedbackRequest, sendRegisterCodeRequest} from "../../services/webho
 router.get('/', authRegisteredMiddleware, async (req, res) => {
     // const userId = req.userId;
     // console.log(`> Registered User ${userId} verified!`);
+    res.webCache.mini();
     res.send('User verify success');
 });
 

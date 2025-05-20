@@ -119,6 +119,7 @@ router.get('/tag/:tag', async (req, res) => {
         return res.status(500).send('Failed to get posts');
 
     const sanitized = await sanitizePostObjArr(posts);
+    res.webCache.mini();
     res.send(sanitized);
 });
 
@@ -134,6 +135,7 @@ router.get('/tags/like/:tag', async (req, res) => {
     if (tags == undefined)
         return res.status(500).send('Failed to get tags');
 
+    res.webCache.mini();
     res.send(tags);
 });
 
@@ -147,6 +149,7 @@ router.get('/uuid/:uuid', async (req, res) => {
         return res.status(500).send('Failed to get post');
 
     const sanitized = await sanitizePostObj(post);
+    res.webCache.short();
     res.send(sanitized);
 });
 
@@ -181,6 +184,7 @@ router.get('/news', async (req, res) => {
         return res.status(500).send('Failed to get posts');
 
     const sanitized = await sanitizePostObjArr(posts);
+    res.webCache.short(); // maybe change to medium?
     res.send(sanitized);
 });
 

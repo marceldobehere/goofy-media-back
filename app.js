@@ -1,5 +1,6 @@
 import './services/loadConf.js'
 import express from 'express';
+import http2Express from 'http2-express';
 import cors from 'cors';
 import compression from 'compression';
 import fileUpload from 'express-fileupload';
@@ -9,8 +10,10 @@ import guestRouter from './routes/guest/guestRoutes.js';
 import userRouter from './routes/user/userRoutes.js';
 import adminRouter from './routes/admin/adminRoutes.js';
 import smolRouter from './routes/smol/smol.js';
+import {webCacheMiddleware} from "./services/webCache.js";
 
-const app = express();
+// const app = express();
+const app = http2Express(express);
 
 app.use(express.json({limit: '15mb'}));
 app.use(express.urlencoded({ extended: false }));
@@ -21,6 +24,7 @@ app.use(fileUpload({
     // tempFileDir: '/tmp/',
     limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
 }));
+app.use(webCacheMiddleware);
 
 app.use('/', indexRouter);
 app.use('/guest', guestRouter);

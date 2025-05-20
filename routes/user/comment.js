@@ -78,6 +78,7 @@ router.get('/comment/:uuid', async (req, res) => {
         return res.status(500).send('Failed to get comment');
 
     const sanitized = await sanitizeCommentArr([comment]);
+    res.webCache.short();
     res.send(sanitized[0]);
 });
 

@@ -2,6 +2,7 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
+import http2 from 'http2';
 const __dirname = import.meta.dirname;
 
 const DATA_PATH = __dirname + "/../data";
@@ -38,10 +39,11 @@ import drizzler from "../services/db/drizzle/drizzle.js";
     if (!SSL)
         server = http.createServer(app);
     else
-        server = https.createServer(
+        server = http2.createSecureServer(
             {
                 key: fs.readFileSync(DATA_PATH + "/ssl/key.pem"),
                 cert: fs.readFileSync(DATA_PATH + "/ssl/cert.pem"),
+                allowHTTP1: true,
             },
             app);
 
